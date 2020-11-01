@@ -21,9 +21,9 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 24, // keep right padding when drawer closed
   },
   appBarSpacer: {
-    minHeight: theme.spacing(13),
+    minHeight: theme.spacing(6),
     [theme.breakpoints.up("sm")]: {
-      minHeight: theme.spacing(14),
+      minHeight: theme.spacing(6),
     },
   },
   content: {
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
     [theme.breakpoints.up("sm")]: {
       paddingTop: theme.spacing(4),
-      padding: theme.spacing(4),
+      padding: theme.spacing(1),
     },
   },
 }));

@@ -1,6 +1,8 @@
 import React, {useState} from 'react'
 import { GoogleMap, LoadScript, Marker , InfoWindow, MarkerClusterer } from '@react-google-maps/api';
 import { Event } from "../models/event";
+import { LocationsDataDiv } from "../styledComponents/DashBoard"
+
 
 
 
@@ -217,7 +219,11 @@ function Map({events}:{events:Event[]|undefined}) {
             })}
           }
         </MarkerClusterer>
-        <></>
+        <>
+          <LocationsDataDiv> 
+            <h2>Users </h2>
+          </LocationsDataDiv>
+        </>
       </GoogleMap>
     </LoadScript>
     </>

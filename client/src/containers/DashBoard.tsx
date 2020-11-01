@@ -5,21 +5,22 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import { Interpreter } from "xstate";
 import { AuthMachineContext, AuthMachineEvents } from "../machines/authMachine";
-// import { TimeOnURLChartBar, TimeOnURLChartPie } from "../components/TimeOnURLChart";
 import ErrorBoundary from "../components/ErrorBoundary";
 import SessionsByDayChart from "../components/SessionsChartByDay";
 import EventLog from "../components/EventsLog";
 import SessionsByHourChsrt from "../components/SessionsChartByHour";
-import RetentionCohort from "../components/RetentionCohort";
+import OsChart from "../components/OsChart";
+import ViewChart from "../components/ViewChart";
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {
     flexGrow: 1,
     gap: "20px",
-    marginTop: "20px",
-    maxWidth: "95vw",
-    marginLeft: "auto",
+    marginTop: "0px",
+    maxWidth: "90vw",
+    marginLeft: "0px",
     marginRight: "auto",
+    padding: "0px"
   },
   tile: {
     display: "flex",
@@ -34,14 +35,12 @@ const useStyles = makeStyles((theme) => ({
   GeoTile: {
     display: "flex",
     boxShadow: "0.5px 0px 0.5px 2px black",
-    height: "70vh",
-    minWidth: "90vw",
+    width: "100%",
+    height: "80vh",
     minHeight: "250px",
     padding: "0px",
   },
-  "MuiGrid-item": {
-    padding: "10px",
-  },
+  
 }));
 
 export interface Props {
@@ -56,7 +55,7 @@ const DashBoard: React.FC = () => {
       <ErrorBoundary>
         <Grid container justify={"center"} spacing={10} className={classes.dashboard}>
           <ErrorBoundary>
-            <Grid item className={classes.GeoTile} xs={10}>
+            <Grid item className={classes.GeoTile} xl={12} style={{padding: "5px"}}>
               <GeoTile />
             </Grid>
           </ErrorBoundary>
@@ -72,12 +71,12 @@ const DashBoard: React.FC = () => {
           </ErrorBoundary>
           <ErrorBoundary>
             <Grid item className={classes.tile} xs={5}>
-              {/* <TimeOnURLChartPie /> */}
+              <OsChart />            
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>
             <Grid item className={classes.tile} xs={6}>
-              {/* <TimeOnURLChartBar /> */}
+              <ViewChart />
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>

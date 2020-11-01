@@ -15,6 +15,7 @@ import { AuthMachineContext, AuthMachineEvents } from "../machines/authMachine";
 import { SnackbarContext, SnackbarSchema, SnackbarEvents } from "../machines/snackbarMachine";
 import { useService } from "@xstate/react";
 import UserOnboardingContainer from "./UserOnboardingContainer";
+import { makeStyles } from "@material-ui/core/styles";
 
 export interface Props {
   isLoggedIn: boolean;
@@ -37,8 +38,9 @@ const PrivateRoutesContainer: React.FC<Props> = ({
     sendNotifications({ type: "FETCH" });
   }, [sendNotifications]);
 
+
   return (
-    <MainLayout notificationsService={notificationsService} authService={authService}>
+    <MainLayout notificationsService={notificationsService} authService={authService} >
       <UserOnboardingContainer
         authService={authService}
         bankAccountsService={bankAccountsService}
