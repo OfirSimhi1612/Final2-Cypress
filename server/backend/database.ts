@@ -93,7 +93,7 @@ const NOTIFICATION_TABLE = "notifications";
 const BANK_TRANSFER_TABLE = "banktransfers";
 const EVENT_TABLE = "events";
 
-const databaseFile = path.join(__dirname, "../data/database.json");
+const databaseFile = path.join(__dirname, process.env.NODE_ENV === 'test' ? "../data/database-events.json" : "../data/database.json");
 const adapter = new FileSync<DbSchema>(databaseFile);
 
 const db = low(adapter);
@@ -863,5 +863,257 @@ export const getTransactionsBy = (key: string, value: string) =>
 /* istanbul ignore next */
 export const getTransactionsByUserId = (userId: string) => getTransactionsBy("receiverId", userId);
 
+
+interface day {
+  date: string;
+  count: number;
+}
+
+interface hour {
+  hour: string;
+  count: number;
+}
+
+export const dayZero:number = new Date(new Date('10/01/2020').toUTCString()).getTime()
+const OneHour: number = 1000 * 60 * 60; 
+const OneDay: number = OneHour * 24
+const OneWeek: number = OneDay*7
+
+function generateWeekObject(offset: number): { [day: string]: Event[] } {
+  let day: number = Date.now() - (offset + 6) * OneDay;
+
+  const week: { [day: string]: [] } = {};
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(day + OneDay * i);
+    const key = `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+    week[key] = [];
+  }
+  return week;
+}
+
+function generateDayObject(): { [day: string]: Event[] } {
+  return {
+    "00:00": [],
+    "01:00": [],
+    "02:00": [],
+    "03:00": [],
+    "04:00": [],
+    "05:00": [],
+    "06:00": [],
+    "07:00": [],
+    "08:00": [],
+    "09:00": [],
+    "10:00": [],
+    "11:00": [],
+    "12:00": [],
+    "13:00": [],
+    "14:00": [],
+    "15:00": [],
+    "16:00": [],
+    "17:00": [],
+    "18:00": [],
+    "19:00": [],
+    "20:00": [],
+    "21:00": [],
+    "22:00": [],
+    "23:00": [],
+  };
+}
+
+export const getAllEvents = () => db.get(EVENT_TABLE).value();
+
+
+export const getLastWeekEventsCount = (offset: number) => {
+  const Days = OneDay * 6; //518400000
+  const Offset = OneDay * offset;
+  const dateInMili = new Date(new Date().toDateString()).getTime();
+  const dayLimit = dateInMili - Days - Offset;
+  const groupByDates = db
+    .get(EVENT_TABLE)
+    .filter((event: Event) => event.date > dayLimit && event.date < dateInMili - Offset + OneDay)
+    .sort((e1: Event, e2: Event) => e1.date - e2.date)
+    .groupBy((event:Event) => {
+      const date = new Date(event.date);
+      return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+    })
+    .value();
+
+  const weekDays = generateWeekObject(offset);
+
+  for (let day in weekDays) {
+    weekDays[day] = groupByDates[day] ? groupByDates[day] : [];
+  }
+
+  let arrResult = Object.keys(weekDays).map((day: string) => {
+    const count = countBy((e: Event) => {
+      const date = new Date(e.date);
+      return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+    }, uniqBy("session_id", weekDays[day]));
+    return count;
+  });
+
+  arrResult = arrResult.map((day, index: number) => {
+    if (Object.keys(day).length === 0) {
+      const date: string = Object.keys(weekDays)[index];
+      arrResult[index][date] = 0;
+    }
+    return arrResult[index];
+  });
+
+  const objResult: day[] = [];
+  arrResult.forEach((e) => {
+    const temp: day = { date: "", count: 0 };
+    temp.date = Object.keys(e)[0];
+    temp.count = e[Object.keys(e)[0]];
+    objResult.push(temp);
+  });
+
+  return objResult;
+};
+
+export const getLastDayEventsCount = ( offset: number) => {
+
+  const Offset: number = OneDay * (offset - 1);
+  const dateInMili: number = new Date(new Date(Date.now()).toDateString()).getTime();
+  const dayLimit: number = dateInMili - Offset - OneDay;
+  const groupByHours = db
+    .get(EVENT_TABLE)
+    .filter(
+      (event: Event) =>
+        event.date > dayLimit && event.date < dateInMili - Offset
+    )
+    .sort((e1: Event, e2: Event) => e1.date - e2.date)
+    .groupBy((event:Event) => {
+      const time = new Date(event.date);
+      return time.getHours() > 9 ? `${time.getHours()}:00` : `0${time.getHours()}:00`;
+    })
+    .value();
+
+  const dayHours = generateDayObject()
+  
+  for(let hour in dayHours ){
+    dayHours[hour] = groupByHours[hour] ? groupByHours[hour] : []
+  }
+
+  let arrResult = Object.keys(dayHours).map((key: string) => {
+    const count = countBy((e: Event) => {
+      const time = new Date(e.date);
+      return time.getHours() > 9 ? `${time.getHours()}:00` : `0${time.getHours()}:00`;
+    }, uniqBy("session_id", dayHours[key]));
+    return count;
+  });
+
+  arrResult = arrResult.map((day, index: number) => {
+    if (Object.keys(day).length === 0) {
+      const date: string = Object.keys(dayHours)[index];
+      arrResult[index][date] = 0;
+    }
+    return arrResult[index];
+  });
+
+  const objResult: hour[] = [];
+  arrResult.forEach((e) => {
+    const temp: hour = { hour: "", count: 0 };
+    temp.hour = Object.keys(e)[0];
+    temp.count = e[Object.keys(e)[0]];
+    objResult.push(temp);
+  });
+
+  return objResult
+}
+
+export const getTodaysEvents = ():Event[] => {
+  const dateInMili = new Date(new Date(Date.now()).toDateString()).getTime();
+
+  const todaysEvents = db
+    .get(EVENT_TABLE)
+    .filter((event: Event) => event.date > dateInMili)
+    .sort((e1: Event, e2: Event) => e1.date - e2.date)
+    .value();
+
+  return todaysEvents
+}
+
+export const getWeeksEvents = ():Event[] => {
+  const dateInMili = new Date(new Date(Date.now()).toDateString()).getTime();
+
+  const todaysEvents = db
+    .get(EVENT_TABLE)
+    .filter((event: Event) => event.date > dateInMili - 6 * OneDay)
+    .sort((e1: Event, e2: Event) => e1.date - e2.date)
+    .value();
+
+  return todaysEvents;
+};
+
+// export const getTimeByUserEachURL = (): any [] => {
+
+//   const allUsers = getAllUsers();
+//   let userURLdetails: 
+//     {"userId": string, 
+//     "username": string, 
+//     "login": number, 
+//     "signin": number, 
+//     "admin": number, 
+//     "home": number}[] = [];
+
+//   allUsers.forEach(user => {
+//     const userEvents = getEventsByUserId(user.id);
+
+//     let counterTimeLogin = 0;
+//     let counterTimeSignin = 0;
+//     let counterTimeAdmin = 0;
+//     let counterTimeHome = 0;
+
+//     userEvents.forEach(event => {
+//       if (event.url === "http://localhost3000/login") {
+//         counterTimeLogin += event.date;      
+//       } else if (event.url === "http://localhost3000/signup") {
+//         counterTimeSignin += event.date;
+//       } else if (event.url === "http://localhost3000/admin") {
+//         counterTimeAdmin += event.date;
+//       } else if (event.url === "http://localhost3000/") {
+//         counterTimeHome += event.date;
+//       }
+//     })
+
+//     userURLdetails.push({
+//       "userId": user.id, 
+//       "username": user.username, 
+//       "login": counterTimeLogin / 1000, 
+//       "signin": counterTimeSignin / 1000, 
+//       "admin": counterTimeAdmin / 1000, 
+//       "home": counterTimeHome / 1000
+//     })
+
+//   })
+
+//     let counterLogin = 0;
+//     let counterSignin = 0;
+//     let counterAdmin = 0;
+//     let counterHome = 0;
+
+//     userURLdetails.forEach((user) => {
+//         counterLogin +=  user.login;
+//         counterSignin += user.signin;
+//         counterAdmin += user.admin;
+//         counterHome += user.home;
+//     });
+
+//     const data2 = [
+//     	{ name: 'Login', value: Math.round((counterLogin / 60 / 60 + Number.EPSILON) * 100) / 100 },
+//     	{ name: 'Signin', value: Math.round((counterSignin / 60 / 60 + Number.EPSILON) * 100) / 100 },
+//     	{ name: 'Admin', value: Math.round((counterAdmin / 60 / 60  + Number.EPSILON) * 100) / 100 },
+//     	{ name: 'Home', value: Math.round((counterHome / 60 / 60  + Number.EPSILON) * 100) / 100 }
+//     ];
+
+//   return [userURLdetails, data2];
+// };
+
+
+export const createEvent = (event: Event) => {
+  db.get(EVENT_TABLE).push(event).write();
+};
 
 export default db;

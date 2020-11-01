@@ -80,6 +80,17 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Notifications" />
     </ListItem>
+    <ListItem
+      button
+      // @ts-ignore
+      onClick={() => showTemporaryDrawer && toggleDrawer()}
+      component={RouterLink}
+      to="/admin"
+    >
+      <ListItemIcon>
+        Statistics
+      </ListItemIcon>
+    </ListItem>
   </div>
 );
 
