@@ -137,48 +137,65 @@ const EventComponent: React.FC<EventComponentProps> = ({ event }) => {
   );
 };
 
-const EventLog: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [offset, setOffset] = useState<number>(10);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const [filters, setFilters] = useState({
-    sorting: "none",
-    type: "all",
-    browser: "all",
-    search: "",
-  });
+interface Filters {
+    sorting: string;
+    type: string,
+    browser: string,
+    search: string
+  }
+
+
+export interface LogProps {
+  events: Event[];
+  hasMore: boolean;
+  offset: number;
+  handleChange: Function;
+  setOffset: Function;
+  filters: Filters;
+}
+
+const EventLog: React.FC<LogProps> = ({events, hasMore, offset, handleChange, setOffset, filters}) => {
+  // const [events, setEvents] = useState<Event[]>([]);
+  // const [offset, setOffset] = useState<number>(10);
+  // const [hasMore, setHasMore] = useState<boolean>(true);
+  // const [filters, setFilters] = useState({
+  //   sorting: "none",
+  //   type: "all",
+  //   browser: "all",
+  //   search: "",
+  // });
 
   const classes = useStyle();
 
-  const fetch = React.useCallback(async (filters, offset) => {
-    try {
-      const { data } = await axios.get("http://localhost:3001/events/all-filtered", {
-        params: {
-          ...filters,
-          offset,
-        },
-      });
-      console.log(data);
-      setHasMore(data.more);
-      setEvents(data.events);
-      return;
-    } catch (error) {
-      console.log(error);
-      return;
-    }
-  }, []);
+  // const fetch = React.useCallback(async (filters, offset) => {
+  //   try {
+  //     const { data } = await axios.get("http://localhost:3001/events/all-filtered", {
+  //       params: {
+  //         ...filters,
+  //         offset,
+  //       },
+  //     });
+  //     console.log(data);
+  //     setHasMore(data.more);
+  //     setEvents(data.events);
+  //     return;
+  //   } catch (error) {
+  //     console.log(error);
+  //     return;
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    fetch(
-      {
-        sorting: "none",
-        type: "all",
-        browser: "all",
-        search: "",
-      },
-      5
-    );
-  }, [fetch]);
+  // useEffect(() => {
+  //   fetch(
+  //     {
+  //       sorting: "none",
+  //       type: "all",
+  //       browser: "all",
+  //       search: "",
+  //     },
+  //     5
+  //   );
+  // }, [fetch]);
 
   function getAllTypes(): string[] {
     const types: string[] = events.map((event: Event) => event.name);
@@ -192,23 +209,23 @@ const EventLog: React.FC = () => {
     return uniq(types);
   }
 
-  function handleChange(
-    key: string,
-    value: React.ChangeEvent<{ name?: string | undefined; value: unknown }>
-  ) {
-    setFilters({
-      ...filters,
-      [key]: value.target.value,
-    });
-    fetch(
-      {
-        ...filters,
-        [key]: value.target.value,
-      },
-      5
-    );
-    setOffset(10);
-  }
+  // function handleChange(
+  //   key: string,
+  //   value: React.ChangeEvent<{ name?: string | undefined; value: unknown }>
+  // ) {
+  //   setFilters({
+  //     ...filters,
+  //     [key]: value.target.value,
+  //   });
+  //   fetch(
+  //     {
+  //       ...filters,
+  //       [key]: value.target.value,
+  //     },
+  //     5
+  //   );
+  //   setOffset(10);
+  // }
 
   return (
     <>

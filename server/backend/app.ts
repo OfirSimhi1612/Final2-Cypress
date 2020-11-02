@@ -70,8 +70,12 @@ if (process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development") {
 }
 
 app.use(express.static(path.join(__dirname, "../public")));
-// const PORT = 3001;
-// app.listen(PORT, () => {
-//   console.log("app is running on port " + PORT);
-// });
+
+// if(process.env.NODE_ENV !== 'test'){
+//   const PORT = 3001;
+//   app.listen(PORT, () => {
+//     console.log("app is running on port " + PORT);
+//   });
+// }
+
 export default app

@@ -20,6 +20,7 @@ import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import { Grid, Avatar, Typography } from "@material-ui/core";
 import { formatAmount } from "../utils/transactionUtils";
 import { AuthMachineContext, AuthMachineEvents } from "../machines/authMachine";
+import EqualizerSharpIcon from '@material-ui/icons/EqualizerSharp';
 
 const drawerWidth = 240;
 
@@ -88,8 +89,9 @@ export const mainListItems = (
       to="/admin"
     >
       <ListItemIcon>
-        Statistics
+        <EqualizerSharpIcon />
       </ListItemIcon>
+      <ListItemText primary="Satatistics" />
     </ListItem>
   </div>
 );

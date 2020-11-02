@@ -1,9 +1,9 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { GoogleMap, LoadScript, Marker , InfoWindow, MarkerClusterer } from '@react-google-maps/api';
 import { Event } from "../models/event";
 import { LocationsDataDiv } from "../styledComponents/DashBoard"
-
-
+import EventsLog from "./EventsLog"
+import axios from "axios";
 
 
 const containerStyle = {
@@ -15,121 +15,75 @@ const center = {
   lat: 31,
   lng: 35
 };
-// type exampleUser = {location:{lat:number,lng:number},username?:string}
-// const defUsers:exampleUser[] = [
-//   {
-//     location:{ lat: -31.56391, lng: 147.154312 }
-//   },
-//   {
-//     location:{ lat: -33.718234, lng: 150.363181 }
-//   },
-//   {
-//     location:{ lat: -33.727111, lng: 150.371124 }
-//   },
-//   {
-//     location:{ lat: -33.848588, lng: 151.209834 }
-//   },
-//   {
-//     location:{ lat: -33.851702, lng: 151.216968 }
-//   },
-//   {
-//     location:{ lat: -34.671264, lng: 150.863657 }
-//   },
-//   {
-//     location:{ lat: -35.304724, lng: 148.662905 }
-//   },
-//   {
-//     location:{ lat: -36.817685, lng: 175.699196 }
-//   },
-//   {
-//     location:{ lat: -36.828611, lng: 175.790222 }
-//   },
-//   {
-//     location:{ lat: -37.75, lng: 145.116667 }
-//   },
-//   {
-//     location:{ lat: -37.759859, lng: 145.128708 }
-//   },
-//   {
-//     location:{ lat: -37.765015, lng: 145.133858 }
-//   },
-//   {
-//     location:{ lat: -37.770104, lng: 145.143299 }
-//   },
-//   {
-//     location:{ lat: -37.7737, lng: 145.145187 }
-//   },
-//   {
-//     location:{ lat: -37.774785, lng: 145.137978 }
-//   },
-//   {
-//     location:{ lat: -37.819616, lng: 144.968119 }
-//   },
-//   {
-//     location:{ lat: -38.330766, lng: 144.695692 }
-//   },
-//   {
-//     location:{ lat: -39.927193, lng: 175.053218 }
-//   },
-//   {
-//     location:{ lat: -41.330162, lng: 174.865694 }
-//   },
-//   {
-//     location:{ lat: -42.734358, lng: 147.439506 }
-//   },
-//   {
-//     location:{ lat: -42.734358, lng: 147.501315 }
-//   },
-//   {
-//     location:{ lat: -42.735258, lng: 147.438 }
-//   },
-//   {
-//     location:{ lat: -43.999792, lng: 170.463352 }
-//   },
-//   {
-//     username:'bobby',
-//     location:{
-//     lat:31.1,
-//     lng:35
-//     }
-//   },
-//   {
-//     username:'sally',
-//     location:{
-//     lat:31.2,
-//     lng:35
-//     }
-//   },
-//   {
-//     username:'donnie',
-//     location:{
-//     lat:31.3,
-//     lng:35
-//     }
-//   },
-//   {
-//     username:'peggie',
-//     location:{
-//     lat:31.3,
-//     lng:35.002
-//     }
-//   },
-//   {
-//     username:'betty',
-//     location:{
-//     lat:31.4,
-//     lng:35
-//     }
-//   },
-//   {
-//     username:'maggie',
-//     location:{
-//     lat:31.5,
-//     lng:35
-//     }
-//   },
-// ]
-function Map({events}:{events:Event[]|undefined}) {
+
+interface Filters {
+  sorting: string;
+  type: string,
+  browser: string,
+  search: string
+}
+
+const Map: React.FC = () => {
+
+  const [events, setEvents] = useState<Event[]>([]);
+  const [offset, setOffset] = useState<number>(10);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [filters, setFilters] = useState({
+    sorting: "none",
+    type: "all",
+    browser: "all",
+    search: "",
+  });
+
+
+  const fetch = React.useCallback(async (filters: Filters, offset) => {
+    try {
+      const { data } = await axios.get("http://localhost:3001/events/all-filtered", {
+        params: {
+          ...filters,
+          offset,
+        },
+      });
+      console.log(data);
+      setHasMore(data.more);
+      setEvents(data.events);
+      return;
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    fetch(
+      {
+        sorting: "none",
+        type: "all",
+        browser: "all",
+        search: "",
+      },
+      5
+    );
+  }, [fetch]);
+
+  function handleChange(
+    key: string,
+    value: React.ChangeEvent<{ name?: string | undefined; value: unknown }>
+  ) {
+    setFilters({
+      ...filters,
+      [key]: value.target.value,
+    });
+    fetch(
+      {
+        ...filters,
+        [key]: value.target.value,
+      },
+      5
+    );
+    setOffset(10);
+  }
+
   const [map, setMap] = useState<google.maps.Map|undefined>(undefined)
   const [markers, setMarkers] = useState<(google.maps.Marker|undefined)[]>([])
   const [infos, setInfos] = useState<(google.maps.InfoWindow|undefined)[]>([])
@@ -153,6 +107,18 @@ function Map({events}:{events:Event[]|undefined}) {
     infos.push(info)
 
   }
+
+  const styles: any[] = [
+    {
+      "featureType": "water",
+      "elementType": "all",
+      "stylers": [
+          {
+            "color": "#EAE9E8"
+          }
+      ]
+  },
+  ]
 
   const markerClick = (e:google.maps.MouseEvent) => {
     const marker:google.maps.Marker|undefined = markers.find(marker=>{
@@ -183,12 +149,15 @@ function Map({events}:{events:Event[]|undefined}) {
           center:center,
           mapTypeControl:false,
           fullscreenControl:false,
-          scaleControl:true
+          scaleControl:true,
+          styles: styles,
+          minZoom: 2,
+          maxZoom: 18,
         }}
         onUnmount={onUnmount}
       >
         <MarkerClusterer 
-        options={clusterOptions}
+          options={clusterOptions}
         >
           {(clusterer) =>{
             //@ts-ignore
@@ -221,7 +190,14 @@ function Map({events}:{events:Event[]|undefined}) {
         </MarkerClusterer>
         <>
           <LocationsDataDiv> 
-            <h2>Users </h2>
+            <EventsLog 
+              events={events}
+              offset={offset}
+              hasMore={hasMore}
+              handleChange={handleChange}
+              setOffset={setOffset}
+              filters={filters}
+            />
           </LocationsDataDiv>
         </>
       </GoogleMap>

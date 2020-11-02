@@ -10,6 +10,7 @@ import {
   getLastDayEventsCount,
   getTodaysEvents,
   getWeeksEvents,
+  getRetentionCohort
 } from "./database";
 import { Event, weeklyRetentionObject,GeoLocation,os } from "../../client/src/models/event";
 import { User } from "../../client/src/models/user";
@@ -98,26 +99,24 @@ router.get("/all-filtered", (req: Request, res: Response) => {
 });
 
 
-// router.get("/retention", (req: Request, res: Response) => {
-//   const retentionCohort:weeklyRetentionObject[] = getRetentionCohort();
+router.get("/retention", (req: Request, res: Response) => {
+  const dayZero = req.query.dayZero
+  const retentionCohort:weeklyRetentionObject[] = getRetentionCohort(parseInt(dayZero));
+  res.json(retentionCohort);
+});
 
-//   res.json(retentionCohort);
-// });
-
-// router.post(
-//   "/",
-//   // ensureAuthenticated,
-//   // validateMiddleware([shortIdValidation("eventId")]),
-//   (req: Request, res: Response) => {
-//     try {
-//       const event: Event = req.body;
-//       createEvent(event);
-//       res.send("event added");
-//     } catch (error) {
-//       res.status(500).send("error occured");
-//     }
-//   }
-//   );
+router.post(
+  "/",
+  (req: Request, res: Response) => {
+    try {
+      const event: Event = req.body;
+      createEvent(event);
+      res.send("event added");
+    } catch (error) {
+      res.status(500).send("error occured");
+    }
+  }
+  );
 
   router.get('/chart/os/:time',(req,res) => {
     const filteredData:{_id:string,os:os}[] = [];

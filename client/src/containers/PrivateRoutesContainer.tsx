@@ -15,7 +15,6 @@ import { AuthMachineContext, AuthMachineEvents } from "../machines/authMachine";
 import { SnackbarContext, SnackbarSchema, SnackbarEvents } from "../machines/snackbarMachine";
 import { useService } from "@xstate/react";
 import UserOnboardingContainer from "./UserOnboardingContainer";
-import { makeStyles } from "@material-ui/core/styles";
 
 export interface Props {
   isLoggedIn: boolean;
@@ -46,6 +45,9 @@ const PrivateRoutesContainer: React.FC<Props> = ({
         bankAccountsService={bankAccountsService}
       />
       <Switch>
+        <PrivateRoute isLoggedIn={isLoggedIn} exact path="/admin">
+            <DashBoard />
+        </PrivateRoute>
         <PrivateRoute isLoggedIn={isLoggedIn} exact path={"/(public|contacts|personal)?"}>
           <TransactionsContainer />
         </PrivateRoute>
@@ -70,9 +72,6 @@ const PrivateRoutesContainer: React.FC<Props> = ({
         <PrivateRoute isLoggedIn={isLoggedIn} exact path="/transaction/:transactionId">
           <TransactionDetailContainer authService={authService} />
         </PrivateRoute>
-        <Route exact path="/admin">
-          <DashBoard />
-        </Route>
       </Switch>
     </MainLayout>
   );

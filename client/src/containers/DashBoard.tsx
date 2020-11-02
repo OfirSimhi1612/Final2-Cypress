@@ -1,5 +1,4 @@
 import React from "react";
-import Tile from "../components/Tile";
 import GeoTile from "../components/GeoTile2";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
@@ -25,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
   tile: {
     display: "flex",
     flexDirection: "column",
-    boxShadow: "0.5px 0px 0.5px 2px black",
     height: "43vh",
     minWidth: "300px",
     minHeight: "250px",
@@ -34,13 +32,10 @@ const useStyles = makeStyles((theme) => ({
   },
   GeoTile: {
     display: "flex",
-    boxShadow: "0.5px 0px 0.5px 2px black",
     width: "100%",
-    height: "80vh",
+    height: "78vh",
     minHeight: "250px",
-    padding: "0px",
   },
-  
 }));
 
 export interface Props {
@@ -77,16 +72,6 @@ const DashBoard: React.FC = () => {
           <ErrorBoundary>
             <Grid item className={classes.tile} xs={6}>
               <ViewChart />
-            </Grid>
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <Grid item className={classes.tile} xs={6}>
-              <Tile />
-            </Grid>
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <Grid item className={classes.tile} xs={5}>
-              <Tile />
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>

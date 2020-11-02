@@ -21,9 +21,9 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 24, // keep right padding when drawer closed
   },
   appBarSpacer: {
-    minHeight: theme.spacing(6),
+    minHeight: theme.spacing(11),
     [theme.breakpoints.up("sm")]: {
-      minHeight: theme.spacing(6),
+      minHeight: theme.spacing(11),
     },
   },
   content: {
@@ -32,7 +32,10 @@ const useStyles = makeStyles((theme) => ({
     overflow: "auto",
   },
   container: {
+    width: "100%",
     minHeight: "77vh",
+    marginLeft: "0px",
+    marginRight: "0px",
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     [theme.breakpoints.up("sm")]: {
@@ -91,10 +94,10 @@ const MainLayout: React.FC<Props> = ({ children, notificationsService, authServi
       <main className={classes.content} data-test="main">
         <div className={classes.appBarSpacer} />
         <Container maxWidth="md" className={classes.container}>
-          <Grid container spacing={3}>
+          <Grid container spacing={0}>
             <Grid item xs={12}>
-      {children}
-      </Grid>
+              {children}
+            </Grid>
           </Grid>
         </Container>
         <footer>
