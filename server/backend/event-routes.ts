@@ -34,6 +34,13 @@ interface Filter {
   offset: number;
 }
 
+router.get("/count", (req: Request, res: Response) => {
+  const allEvents: Event[] = getAllEvents();
+
+  res.json(allEvents.length);
+});
+
+
 router.get("/by-days/:offset", (req: Request, res: Response) => {
   const events = getLastWeekEventsCount(parseInt(req.params.offset));
 
@@ -64,7 +71,6 @@ router.get("/all", (req: Request, res: Response) => {
 
 router.get("/all-filtered", (req: Request, res: Response) => {
   const filters: Filter = req.query;
-  
   let filtered: any[] = getAllEvents();
   
   if (filters.search && filters.search !== "") {

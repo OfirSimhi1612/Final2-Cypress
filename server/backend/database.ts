@@ -4,7 +4,6 @@ import fs from "fs";
 import { v4 } from "uuid";
 import {
   uniqBy,
-  sortedUniqBy,
   map,
   sample,
   reject,
@@ -19,8 +18,7 @@ import {
   inRange,
   remove,
   countBy,
-  groupBy,
-} from "lodash/fp";
+  } from "lodash/fp";
 import { isWithinInterval } from "date-fns";
 import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
@@ -949,7 +947,7 @@ export const getLastWeekEventsCount = (offset: number) => {
 
   let arrResult = Object.keys(weekDays).map((day: string) => {
     const count = countBy((e: Event) => {
-      const date = new Date(e.date);
+      const date: Date = new Date(e.date);
       return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
     }, uniqBy("session_id", weekDays[day]));
     return count;
@@ -977,7 +975,7 @@ export const getLastWeekEventsCount = (offset: number) => {
 export const getLastDayEventsCount = ( offset: number) => {
 
   const Offset: number = OneDay * (offset - 1);
-  const dateInMili: number = new Date(new Date(Date.now()).toDateString()).getTime();
+  const dateInMili: number = new Date(new Date().toDateString()).getTime();
   const dayLimit: number = dateInMili - Offset - OneDay;
   const groupByHours = db
     .get(EVENT_TABLE)

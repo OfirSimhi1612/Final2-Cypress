@@ -1,5 +1,5 @@
 import React from "react";
-import GeoTile from "../components/GeoTile2";
+// import GeoTile from "../components/GeoTile2";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import { Interpreter } from "xstate";
@@ -10,6 +10,7 @@ import EventLog from "../components/EventsLog";
 import SessionsByHourChsrt from "../components/SessionsChartByHour";
 import OsChart from "../components/OsChart";
 import ViewChart from "../components/ViewChart";
+import Map from "../components/Map";
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {
@@ -51,10 +52,10 @@ const DashBoard: React.FC = () => {
         <Grid container justify={"center"} spacing={10} className={classes.dashboard}>
           <ErrorBoundary>
             <Grid item className={classes.GeoTile} xl={12} style={{padding: "5px"}}>
-              <GeoTile />
+              <Map />
             </Grid>
           </ErrorBoundary>
-          <ErrorBoundary>
+          {/* <ErrorBoundary>
             <Grid item className={classes.tile} xs={5}>
               <SessionsByDayChart />
             </Grid>
@@ -76,14 +77,14 @@ const DashBoard: React.FC = () => {
           </ErrorBoundary>
           <ErrorBoundary>
             <Grid item className={classes.GeoTile} xs={7}>
-              {/* <RetentionCohort /> */}
+              <RetentionCohort />
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>
             <Grid item className={classes.tile} xs={7}>
               <EventLog />
             </Grid>
-          </ErrorBoundary>
+          </ErrorBoundary> */}
         </Grid>
       </ErrorBoundary>
     </>

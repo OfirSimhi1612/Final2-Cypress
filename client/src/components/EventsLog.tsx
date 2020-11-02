@@ -15,9 +15,12 @@ import InputLabel from "@material-ui/core/InputLabel";
 import { uniq } from "lodash/fp";
 import TextField from "@material-ui/core/TextField";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Button from "@material-ui/core/Button";
+import { StraightenSharp } from "@material-ui/icons";
 
 interface EventComponentProps {
   event: Event;
+  focus: Function;
 }
 
 interface UserColorProps {
@@ -62,9 +65,14 @@ const UserColor = styled.div<UserColorProps>`
 `;
 
 function getUserColor(userId: string): string {
-  const red: number = (parseInt(userId) * 123) % 255;
-  const blue: number = (parseInt(userId) * 456) % 255;
-  const green: number = (parseInt(userId) * 789) % 255;
+  let count: number = 0;
+  for(let i = 0; i < userId.length; i++){
+      count += userId.charCodeAt(i)
+  }
+
+  const red = (count * 1934 + 100) % 256;
+  const green = (count * 5188 + 200) % 256;
+  const blue = (count * 1312 + 100) % 256;
 
   return `rgb(${red},${green},${blue},0.9)`;
 }
@@ -99,7 +107,7 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const EventComponent: React.FC<EventComponentProps> = ({ event }) => {
+const EventComponent: React.FC<EventComponentProps> = ({ event, focus }) => {
   const classes = useStyle();
   return (
     <>
@@ -123,12 +131,14 @@ const EventComponent: React.FC<EventComponentProps> = ({ event }) => {
           <AccordionDetails>
             <Typography>
               <Typography className={classes.upUserName}>
-                <EventDetail>User {event.distinct_user_id}</EventDetail>
+                <EventDetail>{event.distinct_user_id}</EventDetail>
               </Typography>
               <EventDetail>Date: {new Date(event.date).toLocaleString()}</EventDetail>
-              {/* <EventDetail>Location: {event.geolocation}</EventDetail> */}
               <EventDetail>Browser: {event.browser}</EventDetail>
               <EventDetail>Session ID: {event.session_id}</EventDetail>
+              <Button variant="outlined" color="default" onClick={() => focus(event.geolocation.location)}>
+                Show
+              </Button>
             </Typography>
           </AccordionDetails>
         </Accordion>
@@ -152,50 +162,22 @@ export interface LogProps {
   handleChange: Function;
   setOffset: Function;
   filters: Filters;
+  fetch: Function;
+  focusOnEvent: Function;
 }
 
-const EventLog: React.FC<LogProps> = ({events, hasMore, offset, handleChange, setOffset, filters}) => {
-  // const [events, setEvents] = useState<Event[]>([]);
-  // const [offset, setOffset] = useState<number>(10);
-  // const [hasMore, setHasMore] = useState<boolean>(true);
-  // const [filters, setFilters] = useState({
-  //   sorting: "none",
-  //   type: "all",
-  //   browser: "all",
-  //   search: "",
-  // });
+const EventLog: React.FC<LogProps> = ({events,
+  hasMore,
+  offset,
+  handleChange,
+  setOffset,
+  filters,
+  fetch,
+  focusOnEvent  
+}) => {
+  
 
   const classes = useStyle();
-
-  // const fetch = React.useCallback(async (filters, offset) => {
-  //   try {
-  //     const { data } = await axios.get("http://localhost:3001/events/all-filtered", {
-  //       params: {
-  //         ...filters,
-  //         offset,
-  //       },
-  //     });
-  //     console.log(data);
-  //     setHasMore(data.more);
-  //     setEvents(data.events);
-  //     return;
-  //   } catch (error) {
-  //     console.log(error);
-  //     return;
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   fetch(
-  //     {
-  //       sorting: "none",
-  //       type: "all",
-  //       browser: "all",
-  //       search: "",
-  //     },
-  //     5
-  //   );
-  // }, [fetch]);
 
   function getAllTypes(): string[] {
     const types: string[] = events.map((event: Event) => event.name);
@@ -208,24 +190,6 @@ const EventLog: React.FC<LogProps> = ({events, hasMore, offset, handleChange, se
 
     return uniq(types);
   }
-
-  // function handleChange(
-  //   key: string,
-  //   value: React.ChangeEvent<{ name?: string | undefined; value: unknown }>
-  // ) {
-  //   setFilters({
-  //     ...filters,
-  //     [key]: value.target.value,
-  //   });
-  //   fetch(
-  //     {
-  //       ...filters,
-  //       [key]: value.target.value,
-  //     },
-  //     5
-  //   );
-  //   setOffset(10);
-  // }
 
   return (
     <>
@@ -306,7 +270,7 @@ const EventLog: React.FC<LogProps> = ({events, hasMore, offset, handleChange, se
             }
           >
             {events.map((event: Event) => (
-              <EventComponent event={event} />
+              <EventComponent event={event} focus={focusOnEvent}/>
             ))}
           </InfiniteScroll>
         </Wraper>
