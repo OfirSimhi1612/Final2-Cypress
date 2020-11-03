@@ -925,10 +925,10 @@ export const getAllEvents = () => db.get(EVENT_TABLE).value();
 
 
 export const getLastWeekEventsCount = (offset: number) => {
-  const Days = OneDay * 6; //518400000
-  const Offset = OneDay * offset;
-  const dateInMili = new Date(new Date().toDateString()).getTime();
-  const dayLimit = dateInMili - Days - Offset;
+  const Days: number = OneDay * 6; //518400000
+  const Offset: number= OneDay * offset;
+  const dateInMili: number = new Date(new Date().toDateString()).getTime();
+  const dayLimit: number = dateInMili - Days - Offset;
   const groupByDates = db
     .get(EVENT_TABLE)
     .filter((event: Event) => event.date > dayLimit && event.date < dateInMili - Offset + OneDay)
@@ -1199,3 +1199,5 @@ export const getRetentionCohort = (dayZeroNumber:number):weeklyRetentionObject[]
 }
 
 export default db;
+
+

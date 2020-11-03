@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
   chart: {
     maxHeight: "100%",
+    height: "300px",
     paddingBottom: "10px",
   },
   head: {
@@ -104,7 +105,6 @@ const SessionsByHourChart: React.FC = () => {
     <>
       <div className={classes.chart}>
         <div className={classes.container}>
-          <h2 className={classes.head}>Sessions (Hours):</h2>
           <form className={classes.container} noValidate>
             <TextField
               id="datetime-local"

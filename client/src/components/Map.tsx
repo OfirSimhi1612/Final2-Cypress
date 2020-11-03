@@ -1,17 +1,18 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import { GoogleMap, LoadScript, Marker , InfoWindow, MarkerClusterer } from '@react-google-maps/api';
 import { Event } from "../models/event";
 import { LocationsDataDiv } from "../styledComponents/DashBoard"
 import EventsLog from "./EventsLog"
 import axios from "axios";
-
+import geocoder from "../utils/geocoder";
+import usePromise from 'react-promise';
 
 const containerStyle = {
   width: '100%',
   height: '100%'
 };
  
-interface Cordinates {
+export interface Cordinates {
   lat: number;
   lng: number;
 }
@@ -23,12 +24,37 @@ interface Filters {
   search: string
 }
 
+export const LocationString: React.FC<Cordinates> = ({lat, lng}: Cordinates) => {
+  const [location, setLocation] = useState<string | undefined>()
+  useEffect(() => {
+    async function fetch(){
+      const data: string =  await geocoder(lat, lng)
+      setLocation(data)
+    }
+
+    fetch()
+  }, [])
+
+  return(
+    <> 
+    {location ?
+      <div>
+          {location}
+      </div>
+    
+      : <span>loading...</span>
+    }
+    </>
+  );
+} 
+
 const Map: React.FC = () => {
 
-  const [center, setCenter] = useState<Cordinates>({
+  const [mapCenter, setMapCenter] = useState<Cordinates>({
     lat: 31,
     lng: -25
   })
+  const [mapZoom, setmapZoom] = useState(2)
   const [map, setMap] = useState<google.maps.Map|undefined>(undefined)
   const [markers, setMarkers] = useState<(google.maps.Marker|undefined)[]>([])
   const [infos, setInfos] = useState<(google.maps.InfoWindow|undefined)[]>([])
@@ -42,16 +68,18 @@ const Map: React.FC = () => {
     search: "",
   });
 
+
   const focusOnEvent = React.useCallback(({lat, lng}: Cordinates) => {
     const marker = markers.find(marker => {
       return marker?.getPosition()?.toString() == `(${lat}, ${lng})`
     })
     const i = markers.indexOf(marker)
     infos[i]?.open(map,marker)
-    setCenter({
+    setMapCenter({
       lat,
-      lng: lng - 70
+      lng: lng - 20
     })
+    setmapZoom(4)
   }, [])
 
   const fetch = React.useCallback(async (filters: Filters, offset: number) => {
@@ -63,7 +91,6 @@ const Map: React.FC = () => {
           offset,
         },
       });
-      console.log(data);
       setHasMore(data.more);
       setEvents(data.events);
       return;
@@ -125,9 +152,16 @@ const Map: React.FC = () => {
   },
   ]
 
+  const onLoad = React.useCallback(function callback(map) {
+    setMap(map)
+  }, [])
+
+  const onUnmount = React.useCallback(function callback(map) {
+    setMap(undefined)
+  }, [])
+
   const markerClick = (e:google.maps.MouseEvent) => {
     const marker:google.maps.Marker|undefined = markers.find(marker=>{
-      console.log(markers)
       return marker?.getPosition() == e.latLng
     })
     const i = markers.indexOf(marker)
@@ -147,12 +181,12 @@ const Map: React.FC = () => {
 >
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={center}
-        zoom={2}
-        // onLoad={onLoad}
+        center={mapCenter}
+        zoom={mapZoom}
+        onLoad={onLoad}
         options={{
           streetViewControl:false,
-          center:center,
+          center:mapCenter,
           mapTypeControl:false,
           fullscreenControl:false,
           scaleControl:true,
@@ -160,7 +194,7 @@ const Map: React.FC = () => {
           minZoom: 2,
           maxZoom: 18,
         }}
-        // onUnmount={onUnmount}
+        onUnmount={onUnmount}
       >
         {events &&
           <MarkerClusterer 
@@ -168,7 +202,6 @@ const Map: React.FC = () => {
           >
             {(clusterer) =>{
               //@ts-ignore
-              {console.log(events, 'map events')}
               return events?.map((event)=>{
                 const {geolocation,name,date} = event
                 return <Marker
@@ -185,10 +218,7 @@ const Map: React.FC = () => {
                   >
                     <div>
                         <span>
-                          name: {name}
-                        </span> <br/>
-                        <span>
-                          time: {new Date(date).toString().slice(0,15)}
+                          <LocationString lat={geolocation.location.lat} lng={geolocation.location.lng}/>
                         </span>
                     </div>
                   </InfoWindow>

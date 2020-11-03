@@ -1,53 +1,100 @@
-import React from "react";
-import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer } from 'recharts';
+import { Event, os } from "../models/event";
 
-const mockData = [ { "_id": "vern685wo7gbtg8iwhw487oy", "session_id": "gehos8t4hlkros5", "name": "Signed Up", "distinct_user_id": "13793", "referred": "Friend", "time": 1371002000, "os": "windows", "browser": "chrome", "geolocation": {
-    "location": { "lat": 51.0, "lng": -0.1 }, "accuracy": 1200.4, }, }, { "_id": "vern685wo7gbtg8iwhw487oy", "session_id": "fsdawgwg35gsd5", "name": "Viewed Home page", "distinct_user_id": "13793", "referred": "Friend", "time": 1371002000, "os": "android", "browser": "chrome", "geolocation": {
-    "location": { "lat": 51.0, "lng": -0.1 }, "accuracy": 1200.4, }, }, ]
+interface OsCount {
+  name: os;
+  count: number;
+}
+
+const COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51','#9e2a2b'];
+
+const renderCustomizedLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+  name,
+  index
+}: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = 10 + innerRadius + (outerRadius - innerRadius);
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill={COLORS[index % COLORS.length]}
+      textAnchor={x > cx ? "start" : "end"}
+      dominantBaseline="central"
+    >
+      {name} {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
 
 const OsChart: React.FC = () => {
-  let  usersOS : {
-        mac:number ,
-        windows:number,
-        android:number,
-        linux:number,
-        other:number,
+  const [osCount, setOSCount] = useState<OsCount[]>([]);
+
+  useEffect(() => {
+    async function fetch(){
+      try{
+        const { data } = await axios.get("http://localhost:3001/events/chart/os/all")
+        const os = data.reduce((count: OsCount[], event: Event) => {
+          count[count.findIndex(e => e.name === event.os)].count ++;
+          return count;
+        }, [
+          {name: "windows", count: 0},
+          {name: "mac", count: 0},
+          {name: "linux", count: 0},
+          {name: "ios", count: 0},
+          {name: "android", count: 0},
+          {name: "other", count: 0}
+        ])
+        setOSCount(os)
+      } catch (error){
+        console.log(error);
+      }
     }
-     usersOS = {
-         mac:0,
-         windows:0,
-         android:0,
-         linux:0,
-         other:0,
-     }
-   
-    mockData.forEach(element => {
-        switch (element.os) {
-            case "windows":
-                usersOS.windows++;
-                break;
-                case "mac":
-                    usersOS.mac++;
-                    case "linux":
-                        usersOS.linux++;
-                        case "android":
-                        usersOS.android++;
-            default:
-                usersOS.other++;
-                break;
-        }    
-    });
+
+    fetch()
+    
+  }, [])
+  
+
   return (
     <>
-    <LineChart width={500} height={300} data={mockData}>
-    <XAxis dataKey="name"/>
-    <YAxis/>
-    <CartesianGrid stroke="#eee" strokeDasharray="5 5"/>
-    <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-    <Line type="monotone" dataKey="pv" stroke="#82ca9d" />
-  </LineChart>
+    <h2>Os Distribution</h2>
+    {osCount.length > 0 &&
+    <ResponsiveContainer>
+      <PieChart width={400} height={300}>
+        <Pie
+          data={osCount} 
+          cx="50%"
+          cy="50%" 
+          labelLine={false}
+          label={renderCustomizedLabel} 
+          outerRadius={100}
+          fill="#8884d8"
+          dataKey={"count"}
+        >
+          {
+            osCount!.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+          }
+        </Pie>
+        <Tooltip/>
+      </PieChart>
+      </ResponsiveContainer>
+    }
     </>
   );
 };
 
 export default OsChart;
+
+
