@@ -100,12 +100,12 @@ const adapter = new FileSync<DbSchema>(databaseFile);
 const db = low(adapter);
 
 export const seedDatabase = () => {
-  const testSeed = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), "data", "database-seed.json"), "utf-8")
-  );
+  // const testSeed = JSON.parse(
+  //   fs.readFileSync(path.join(process.cwd(), "data", "database-seed.json"), "utf-8")
+  // );
 
-  // seed database with test data
-  db.setState(testSeed).write();
+  // // seed database with test data
+  // db.setState(testSeed).write();
   return;
 };
 

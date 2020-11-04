@@ -73,21 +73,20 @@ const DashBoard: React.FC = () => {
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>
-            <Grid item className={classes.tile} xl={6}>
-              <OsChart />            
-            </Grid>
-          </ErrorBoundary>
-          {/* <ErrorBoundary>
-            <Grid item className={classes.tile} xs={6}>
-              <ViewChart />
-            </Grid>
-          </ErrorBoundary> */}
-          <ErrorBoundary>
             <Grid item className={classes.retentionTile} xs={11}>
               <RetentionCohort />
             </Grid>
           </ErrorBoundary>
-         
+          <ErrorBoundary>
+            <Grid item className={classes.tile} xl={6}>
+              <OsChart />            
+            </Grid>
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <Grid item className={classes.tile} xs={6}>
+              <ViewChart />
+            </Grid>
+          </ErrorBoundary>
         </Grid>
       </ErrorBoundary>
     </>

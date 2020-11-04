@@ -1,67 +1,67 @@
-import React,{useEffect} from 'react'
+import React,{ useEffect, useState } from 'react'
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
   } from 'recharts';
+import {Event, eventName } from "../models/event";
+import axios from "axios";
   
-export default function ViewChart() {
-    const mockData = [{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},{id:156,page:"HomePage"},
-    {id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},{id:157,page:"Transactions"},
-    {id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},{id:158,page:'My Profile'},
-    {id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},{id:159,page:'statistics'},
-]
-    const updateData = () => {
-      mockData.forEach((session) => {
-        switch (session.page) {
-            case "HomePage":
-                    data[0].views++;
-                break;
-                case "Transactions":
-                        data[1].views++;  
-                    break;
-                    case "My Profile":
-                            data[2].views++;
-                        break;
-                        case "statistics":
-                                data[3].views++;  
-                        break;
-            default:
-                break;
-      }})
-    }
-    const data = [
-        {
-          name: 'HomePage', views: 4000, amt: 2400,
-        },
-        {
-          name: 'Transactions', views: 3000, amt: 2210,
-        },
-        {
-          name: 'My Profile', views: 2000, amt: 2290,
-        },
-        {
-          name: 'statistics', views: 3490, amt: 2100,
-        },
-      ];
-      useEffect(() => {
-          updateData();
-      }, [])
+  interface ViewsCount {
+    name: eventName;
+    count: number;
+    url: string;
+  }
+  
+  const COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51','#9e2a2b'];
+  
+  const ViewsChart: React.FC = () => {
+    const [viewsCount, setViewsCount] = useState<ViewsCount[]>([]);
+  
+    useEffect(() => {
+      async function fetch(){
+        try{
+          const { data } = await axios.get("http://localhost:3001/events/all")
+          const views = data.reduce((count: ViewsCount[], event: Event) => {
+            console.log(event.name)
+            count[count.findIndex(e => e.url === event.name)].count ++;
+            return count;
+          }, [
+            {name: "Login", count: 0, url:"login"},
+            {name: "Signup", count: 0, url:"signup"},
+            {name: "Analitics", count: 0, url:"admin"},
+            {name: "Home Page", count: 0, url:"/"}
+          ])
+          setViewsCount(views)
+        } catch (error){
+          console.log(error);
+        }
+      }
+  
+      fetch()
+      
+    }, [])
+    
+  
     return (
-        <div style={{}}>
-            <BarChart
-        width={500}
-        height={280}
-        data={data}
-        margin={{
-          top: 5, right: 100, bottom: 15,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="views" fill="#8884d8" background={{ fill: '#eee' }} />
-      </BarChart>
-        </div>
-    )
-}
+      <>
+      <h2 style={{textAlign:"center"}}>Page Views Distribution</h2>
+      {viewsCount.length > 0 &&
+      <ResponsiveContainer>
+        <BarChart width={730} height={250} data={viewsCount}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="count" >
+          {
+            viewsCount!.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+          }
+          </Bar>
+        </BarChart>
+        </ResponsiveContainer>
+      }
+      </>
+    );
+  };
+  
+  export default ViewsChart;
