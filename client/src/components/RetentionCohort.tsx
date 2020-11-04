@@ -1,90 +1,115 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./RetentionCohort.css";
-import {weeklyRetentionObject} from '../models/event'
+import { weeklyRetentionObject } from "../models/event";
+import { Td, Th, DatesTd, Table } from "../styledComponents/Retention"; 
+
+const OneHour: number = 1000 * 60 * 60; 
+const OneDay: number = OneHour * 24
+const OneWeek: number = OneDay*7
+
+// 0:
+// end: "Oct 06 2020"
+// newUsers: 9
+// registrationWeek: 0
+// start: "Sep 30 2020"
+// weeklyRetention: (6) [100, 100, 78, 89, 33, 0]
+// __proto__: Object
+// 1:
+// end: "Oct 13 2020"
+// newUsers: 16
+// registrationWeek: 1
+// start: "Oct 07 2020"
+// weeklyRetention: (5) [100, 100, 100, 94, 0]
+// __proto__: Object
+// 2:
+// end: "Oct 20 2020"
+// newUsers: 9
+// registrationWeek: 2
+// start: "Oct 14 2020"
+// weeklyRetention: (4) [100, 100, 78, 0]
+// __proto__: Object
+// 3:
+// end: "Oct 27 2020"
+// newUsers: 9
+// registrationWeek: 3
+// start: "Oct 21 2020"
+// weeklyRetention: (3) [100, 89, 0]
+// __proto__: Object
+// 4:
+// end: "Nov 03 2020"
+// newUsers: 7
+// registrationWeek: 4
+// start: "Oct 28 2020"
+// weeklyRetention: (2) [100, 0]
+// __proto__: Object
+// 5:
+// end: "Nov 10 2020"
+// newUsers: 0
+// registrationWeek: 5
+// start: "Nov 04 2020"
+// weeklyRetention: [100]
+
+const getDefalutDayZero = () => {
+  const today = new Date (new Date().toDateString()).getTime()+6*OneHour
+  const dayZeroInMili = today-8*OneWeek
+
+  return dayZeroInMili;
+}
 
 
-
-const weekDataBlock = (week: weeklyRetentionObject) => {
-  const { registrationWeek, weeklyRetention } = week;
-  return weeklyRetention.map((percent, i) => {
-    const returnedUserPercent = Math.round(percent);
-    const redGreen = String(100 - returnedUserPercent) + "%";
-    return (
-      <td
-        key={`week${registrationWeek}block${i}`}
-        className="weekDataBlock"
-        title={returnedUserPercent + "%"}
-        style={{ backgroundColor: `rgb(${redGreen},${redGreen},100%)` }}
-      />
-    );
-  });
-};
-
-const RetentionCohort = () => {
-  const [weeks, setWeeks] = useState<weeklyRetentionObject[]>([]);
-  useEffect(()=>{
-    axios.get("http://localhost:3001/events/retention")
-    .then(({data})=>{setWeeks((data))});
-  },[])
+const RetentionCohort: React.FC = () => {
   
-  const totalUsers = weeks.reduce((total, current) => {
-    return total + current.newUsers;
-  }, 0);
-  function CalculateAllUsersRetention(registrationWeek: number) {
-    const retentionByWeek: number[] = weeks.map((week) => {
-      const { weeklyRetention } = week;
-      return weeklyRetention[registrationWeek];
-    });
-    const trimmedArray = retentionByWeek //remove undefined values
-      .filter((weeklyRetention) => typeof weeklyRetention === 'number');
-    console.log(trimmedArray)
-    return Math.round(
-      trimmedArray.reduce((total, cur) => total + cur, 0)/ trimmedArray.length
-      );
-  }
+  const [cohortData, setCohortData] = useState<weeklyRetentionObject[]>()
+  const [dayZero, setDayZero] = useState<number>(getDefalutDayZero())
+
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await axios.get(`http://localhost:3001/events/retention?dayZero=${dayZero}`);
+
+      console.log(data)
+      setCohortData(data);
+    }
+    fetch()
+  }, [])
 
   return (
-    <div className="retention-cohort">
-      <button onClick={()=>{console.log(weeks)}}>clk</button>
-      <h1>User Retention</h1>
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>registration</th>
-              {weeks.map((week) => (
-                <th key={"week" + week.registrationWeek}>{
-                  `week${week.registrationWeek}`
-                  }</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr className='weekly-percents'>
-              <td>All users</td>
-              {weeks.map(({ registrationWeek }) => (
-                <td key={"week" + registrationWeek + "ret"}>
-                  {CalculateAllUsersRetention(registrationWeek) + "%"}
-                </td>
-              ))}
-            </tr>
-            {weeks.map((week) => {
-              return (
-                <tr key={"week" + week.registrationWeek} className="retention-week">
-                  <td>
-                    {`week ${week.registrationWeek}`}
-                    <br/>
-                  {`${week.start} ${'→'} ${week.end}`}
-                  </td>
-                  {weekDataBlock(week)}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <>
+      <Table>
+        <tr>
+          <Th>Time frame</Th>
+          {
+            cohortData &&
+            cohortData.map((week:weeklyRetentionObject , index:number) => <Th>Week {index}</Th>)
+          }
+        </tr>
+        { cohortData && 
+          cohortData.map((week: weeklyRetentionObject) => {
+            return (
+              <tr>
+                <DatesTd>
+                  <div>
+                    {week.start} - {week.end}
+                  </div>
+                  <div style={{fontSize: "12px", fontWeight: "normal"}}>
+                    {week.newUsers} New Users
+                  </div>
+                </DatesTd>
+                {
+                  week.weeklyRetention.map((retention: number) => {
+                    return (
+                      <Td theme={{percents: retention}}>
+                        {retention}%
+                      </Td>
+                    );
+                  })
+                }
+              </tr>
+            );
+          } )
+        }
+      </Table>
+    </>
   );
 };
 

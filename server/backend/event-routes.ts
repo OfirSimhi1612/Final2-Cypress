@@ -10,7 +10,8 @@ import {
   getLastDayEventsCount,
   getTodaysEvents,
   getWeeksEvents,
-  getRetentionCohort
+  getRetentionCohort,
+  // retention
 } from "./database";
 import { Event, weeklyRetentionObject,GeoLocation,os } from "../../client/src/models/event";
 import { User } from "../../client/src/models/user";
@@ -269,7 +270,10 @@ router.get('/chart/geolocation/:time',(req,res) => {
     res.send(filteredData);
   })
   
-  
+  // router.get("/test", (req: Request, res: Response) => {
+  //   const events = retention(parseInt(req.query.dayZero))
+  //   res.send(events)
+  // })
 
   export default router;
   

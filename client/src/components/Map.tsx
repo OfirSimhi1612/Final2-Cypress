@@ -5,7 +5,6 @@ import { LocationsDataDiv } from "../styledComponents/DashBoard"
 import EventsLog from "./EventsLog"
 import axios from "axios";
 import geocoder from "../utils/geocoder";
-import usePromise from 'react-promise';
 
 const containerStyle = {
   width: '100%',
@@ -69,17 +68,19 @@ const Map: React.FC = () => {
   });
 
 
-  const focusOnEvent = React.useCallback(({lat, lng}: Cordinates) => {
+  const focusOnEvent = React.useCallback(async ({lat, lng}: Cordinates) => {
     const marker = markers.find(marker => {
       return marker?.getPosition()?.toString() == `(${lat}, ${lng})`
     })
     const i = markers.indexOf(marker)
+    const location = await geocoder(lat, lng)
+    infos[i]?.setContent(`<span>${location}</span>`)
     infos[i]?.open(map,marker)
     setMapCenter({
       lat,
       lng: lng - 20
     })
-    setmapZoom(4)
+    setmapZoom(5)
   }, [])
 
   const fetch = React.useCallback(async (filters: Filters, offset: number) => {
@@ -160,11 +161,13 @@ const Map: React.FC = () => {
     setMap(undefined)
   }, [])
 
-  const markerClick = (e:google.maps.MouseEvent) => {
+  const markerClick = async (e:google.maps.MouseEvent) => {
     const marker:google.maps.Marker|undefined = markers.find(marker=>{
       return marker?.getPosition() == e.latLng
     })
     const i = markers.indexOf(marker)
+    const location = await geocoder(e.latLng.lat(), e.latLng.lng())
+    infos[i]?.setContent(`<span>${location}</span>`)
     infos[i]?.open(map,marker)
   }
 
@@ -202,7 +205,7 @@ const Map: React.FC = () => {
           >
             {(clusterer) =>{
               //@ts-ignore
-              return events?.map((event)=>{
+              return events?.map((event, index)=>{
                 const {geolocation,name,date} = event
                 return <Marker
                   onLoad={markerLoad}
@@ -216,11 +219,7 @@ const Map: React.FC = () => {
                   <InfoWindow
                   onLoad={infoLoad}
                   >
-                    <div>
-                        <span>
-                          <LocationString lat={geolocation.location.lat} lng={geolocation.location.lng}/>
-                        </span>
-                    </div>
+                    <div></div>
                   </InfoWindow>
                 </Marker>
               })}

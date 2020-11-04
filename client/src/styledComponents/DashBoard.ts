@@ -10,7 +10,7 @@ export const LocationsDataDiv = styled.div`
     left: 10px;
     width: 550px;
     height: 250px;
-    background-color : rgb(255,255,255,0.7);
+    background-color : rgb(255,255,255,0.8);
     border: 2px solid grey;
     border-radius: 3%;
 

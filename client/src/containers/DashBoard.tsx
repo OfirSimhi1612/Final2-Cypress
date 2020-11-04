@@ -20,6 +20,14 @@ const useStyles = makeStyles((theme) => ({
     marginRight: "auto",
     padding: "0px",
   },
+  retentionTile: {
+    display: "flex",
+    width: "95%",
+    height: "78vh",
+    minHeight: "250px",
+    boxShadow: "0px 0px 9px 1px #5C5C5C",
+    borderRadius: "1%"
+  },
   tile: {
     display: "flex",
     flexDirection: "column",
@@ -28,14 +36,17 @@ const useStyles = makeStyles((theme) => ({
     minHeight: "250px",
     padding: "0px",
     alignContent: "center",
-    border: "1px solid black"
+    boxShadow: "0px 0px 9px 1px #5C5C5C",
+    borderRadius: "1%"
   },
   GeoTile: {
     display: "flex",
     width: "95%",
     height: "78vh",
     minHeight: "250px",
-    border: "1px solid black"
+    boxShadow: "0px 0px 9px 1px #5C5C5C",
+    borderRadius: "1%"
+
   },
 }));
 
@@ -72,7 +83,7 @@ const DashBoard: React.FC = () => {
             </Grid>
           </ErrorBoundary> */}
           <ErrorBoundary>
-            <Grid item className={classes.GeoTile} xs={7}>
+            <Grid item className={classes.retentionTile} xs={11}>
               <RetentionCohort />
             </Grid>
           </ErrorBoundary>

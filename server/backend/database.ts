@@ -68,6 +68,7 @@ import {
   isCommentNotification,
 } from "../../client/src/utils/transactionUtils";
 import { DbSchema } from "../../client/src/models/db-schema";
+import { date } from "faker";
 
 
 export type TDatabase = {
@@ -1116,7 +1117,7 @@ export const createEvent = (event: Event) => {
   db.get(EVENT_TABLE).push(event).write();
 };
 
-export const getRetentionCohort = (dayZeroNumber:number):weeklyRetentionObject[] => {
+export const getRetentionCohort = (dayZeroNumber:number): weeklyRetentionObject[] => {
   
   const dayZero:number = new Date(new Date(dayZeroNumber).toUTCString()).getTime()
   
@@ -1148,7 +1149,7 @@ export const getRetentionCohort = (dayZeroNumber:number):weeklyRetentionObject[]
     weekEnds.push(new Date(new Date(d).toDateString()).getTime()+OneWeek-1)
   }
   
-  console.log(weekEnds.map(week => console.log(new Date(week))));
+  
 
   const weeklyRetention:weeklyRetentionObject[] = weekEnds.map((weekEnd,weekNumber) => {
     //first isolate the new Users the week
@@ -1200,4 +1201,70 @@ export const getRetentionCohort = (dayZeroNumber:number):weeklyRetentionObject[]
 
 export default db;
 
+// export const formatDate = (date:Date):string =>{
+//   var displayDate = ("0" + date.getDate()).slice(-2) + "/" +
+//     ("0" + (date.getMonth() + 1)).slice(-2) + "/" +
+//     ( + date.getFullYear())
+//   return displayDate;
+// }
 
+// export const weeksFromDayZero = (dayZero: number, lastDay: number): {}[] => {
+//   let startOfAWeekArr: {}[] = [];
+//   let i = 0
+//   let firstDate: number;
+//   do {
+//     firstDate = new Date(new Date(dayZero-2*OneHour - OneWeek).toDateString()).getTime()
+//     startOfAWeekArr[i] = { firstDate: new Date(new Date(new Date(firstDate).toDateString()).getTime()), lastDate: dayZero + OneWeek  ,registrationWeek: i , signup : 0 }
+//     dayZero = dayZero + OneWeek;
+//     i += 1
+//   } while (dayZero <= lastDay)
+//   return startOfAWeekArr;
+// }
+
+// export const isLogInThisWeek = (userId:string,startOfTheWeek:number,endOfTheWeek:number) => {
+//   let events:Event[] = db.get(EVENT_TABLE)
+//   .filter((event:Event) => (event.date > startOfTheWeek) && (event.date < endOfTheWeek))
+//   .filter((event:Event) => (event.name === 'login')).value()
+//   let i = 0
+//   while(i < events.length)
+//   {
+//     if (events[i].distinct_user_id === userId)
+//     {
+//       return 1
+//     }
+//     i +=1;
+//   }
+//   return 0;
+// }
+
+// export const retention = (dayZero: number) =>{
+//    dayZero = new Date(new Date(dayZero).toUTCString()).getTime()
+
+//   const weekEnds:number[] = []
+//   for(
+//       let d = new Date(new Date(dayZero-2*OneHour - OneWeek).toDateString()).getTime() ;
+//       d<new Date(new Date().toDateString()).getTime()+OneWeek ;
+//       d+=OneWeek+2*OneHour
+//     ){ 
+//     weekEnds.push(new Date(new Date(d).toDateString()).getTime()+OneWeek-1)
+//   }
+  
+//   const signups = db
+//   .get('events')
+//   .filter((event: Event) => event.name === "signup")
+//   .groupBy((event: Event) => {
+//     return weekEnds.findIndex((week: any) => event.date > week && event.date < week + OneWeek)
+//   })
+//   .value()
+  
+//   const logins =  db
+//   .get('events')
+//   .filter((event: Event) => event.name === "login")
+//   .groupBy((event: Event) => {
+//     return weekEnds.findIndex((week: any) => {
+//       event.date > week && event.date < week + OneWeek
+//     })
+//   })
+//   .value()
+  
+// }

@@ -69,7 +69,7 @@ const OsChart: React.FC = () => {
 
   return (
     <>
-    <h2>Os Distribution</h2>
+    <h2 style={{textAlign:"center"}}>Os Distribution</h2>
     {osCount.length > 0 &&
     <ResponsiveContainer>
       <PieChart width={400} height={300}>
