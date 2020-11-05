@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   LineChart,
   Line,
@@ -8,9 +8,9 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-} from "recharts";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
+} from 'recharts';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 
 export interface DaySessions {
   date: string;
@@ -20,26 +20,26 @@ export interface DaySessions {
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    display: "flex",
-    justifyContent: "space-between",
-    paddingLeft: "10px",
-    marginBottom: "5px",
-    flexWrap: "wrap",
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingLeft: '10px',
+    marginBottom: '5px',
+    flexWrap: 'wrap',
   },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    marginTop: "10px",
-    width: "100%",
+    marginTop: '10px',
+    width: '100%',
   },
   chart: {
-    maxHeight: "100%",
-    height: "300px",
-    paddingBottom: "10px",
+    maxHeight: '100%',
+    height: '300px',
+    paddingBottom: '10px',
   },
   head: {
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
     },
   },
 }));
@@ -53,7 +53,7 @@ const SessionsByDayChart: React.FC = () => {
   useEffect(() => {
     async function fetch() {
       const { data: thisWeek } = await axios.get(
-        `http://localhost:3001/events/by-days/${mainGraph}`
+        `http://localhost:3001/events/by-days/${mainGraph}`,
       );
       setSessionsCount(thisWeek);
     }
@@ -99,11 +99,14 @@ const SessionsByDayChart: React.FC = () => {
           </form>
         </div>
         <ResponsiveContainer width="90%" height="80%">
-          <LineChart data={sessionsCount} margin={{ top: 5,  bottom: 15 }}>
+          <LineChart data={sessionsCount} margin={{ top: 5, bottom: 15 }}>
             <Line type="monotone" dataKey="count" stroke="#8884d8" name="This Week" />
             <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-            <XAxis dataKey="date" label={{value: "Date", offset:-10, position: "insideBottom"}}/>
-            <YAxis label={{ value: 'Unique Sessoins', angle: -90, position: 'insideStart', dx:-10}}/>
+            <XAxis dataKey="date" label={{ value: 'Date', offset: -10, position: 'insideBottom' }} />
+            <YAxis label={{
+              value: 'Unique Sessoins', angle: -90, position: 'insideStart', dx: -10,
+            }}
+            />
             <Tooltip />
           </LineChart>
         </ResponsiveContainer>

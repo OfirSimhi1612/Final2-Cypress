@@ -18,9 +18,9 @@ export interface weeklyRetentionObject {
   end:string
 }
 
-export type eventName = "login" | "signup" | "admin" | "/";
-export type os = "windows" | "mac" | "linux" | "ios" | "android" | "other";
-export type browser = "chrome" | "safari" | "edge" | "firefox" | "ie" | "other";
+export type eventName = 'login' | 'signup' | 'admin' | '/';
+export type os = 'windows' | 'mac' | 'linux' | 'ios' | 'android' | 'other';
+export type browser = 'chrome' | 'safari' | 'edge' | 'firefox' | 'ie' | 'other';
 export type GeoLocation = {
   location: Location;
   accuracy: number;
