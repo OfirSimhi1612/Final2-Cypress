@@ -143,7 +143,7 @@ const Map: React.FC = () => {
       elementType: 'all',
       stylers: [
         {
-          color: '#EAE9E8',
+          color: '#ffffff',
         },
       ],
     },
