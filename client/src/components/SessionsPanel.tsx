@@ -8,6 +8,8 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import SessionsChartByHour from "./SessionsChartByHour";
 import SessionsChartByDay from "./SessionsChartByDay"
+import { transform } from '@babel/core';
+import { Rotate90DegreesCcw, RotateLeft } from '@material-ui/icons';
 
 
 interface TabPanelProps {
@@ -48,7 +50,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     maxHeight: "100%",
     width: 500,
+    [theme.breakpoints.down("sm")]: {
+      overFlowX: "scroll",
+      transform: RotateLeft
+    },
   },
+  header: {
+    textAlign: "center",
+
+  }
 }));
 
 const SessionsPanel: React.FC = () => {

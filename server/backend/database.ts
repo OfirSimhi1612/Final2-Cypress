@@ -1150,7 +1150,7 @@ export const getRetentionCohort = (dayZeroNumber:number): weeklyRetentionObject[
   }
   
   
-
+  
   const weeklyRetention:weeklyRetentionObject[] = weekEnds.map((weekEnd,weekNumber) => {
     //first isolate the new Users the week
     

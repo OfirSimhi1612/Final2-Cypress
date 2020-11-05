@@ -131,12 +131,12 @@ const SessionsByHourChart: React.FC = () => {
           </form>
         </div>
         <ResponsiveContainer width="90%" height="80%">
-          <LineChart data={sessionsCount} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+          <LineChart data={sessionsCount} margin={{ top: 5, bottom: 15 }}>
             <Line type="monotone" dataKey="count" stroke="#8884d8" name="Main" />
             <Line type="monotone" dataKey="offset" stroke="#8c0819" name="Secondary" />
             <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-            <XAxis dataKey="hour" />
-            <YAxis />
+            <XAxis dataKey="hour" label={{value: "Date", offset:-10, position: "insideBottom"}}/>
+            <YAxis label={{ value: 'Unique Sessoins', angle: -90, position: 'insideStart', dx: -20}}/>
             <Tooltip />
           </LineChart>
         </ResponsiveContainer>

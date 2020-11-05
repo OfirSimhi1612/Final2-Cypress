@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { weeklyRetentionObject } from "../models/event";
-import { Td, Th, DatesTd, Table } from "../styledComponents/Retention"; 
+import { Td, Th, DatesTd, Table, Container } from "../styledComponents/Retention"; 
 
 const OneHour: number = 1000 * 60 * 60; 
 const OneDay: number = OneHour * 24
@@ -75,6 +75,7 @@ const RetentionCohort: React.FC = () => {
 
   return (
     <>
+    <Container>
       <Table>
         <tr>
           <Th>Time frame</Th>
@@ -109,6 +110,7 @@ const RetentionCohort: React.FC = () => {
           } )
         }
       </Table>
+      </Container>
     </>
   );
 };

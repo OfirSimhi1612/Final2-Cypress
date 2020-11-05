@@ -24,27 +24,37 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     width: "95%",
     height: "78vh",
-    minHeight: "250px",
-    boxShadow: "0px 0px 9px 1px #5C5C5C",
+    minHeight: "500px",
+    // boxShadow: "0px 0px 9px 1px #5C5C5C",
     borderRadius: "1%"
   },
   tile: {
     display: "flex",
     flexDirection: "column",
     height: "70vh",
-    minWidth: "450px",
-    minHeight: "250px",
+    minWidth: "300px",
+    minHeight: "400px",
+    maxWidth: "500px",
     padding: "0px",
     alignContent: "center",
-    boxShadow: "0px 0px 9px 1px #5C5C5C",
+    // boxShadow: "0px 0px 9px 1px #5C5C5C",
     borderRadius: "1%"
+  },
+  OsTile: {
+    height: "70vh",
+    minWidth: "250px",
+    minHeight: "300px",
+    padding: "0px",
+    alignContent: "center",
+    // boxShadow: "0px 0px 9px 1px #5C5C5C",
+    borderRadius: "1%",
   },
   GeoTile: {
     display: "flex",
     width: "95%",
     height: "78vh",
     minHeight: "250px",
-    boxShadow: "0px 0px 9px 1px #5C5C5C",
+    // boxShadow: "0px 0px 9px 1px #5C5C5C",
     borderRadius: "1%"
 
   },
@@ -67,9 +77,13 @@ const DashBoard: React.FC = () => {
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>
-            <Grid item className={classes.tile} xl={4} style={{padding: "0px"}}>
-              <h2 style={{textAlign: "center"}}>Sessions Comparison</h2>
-              <SessionsPanel />
+            <Grid item className={classes.OsTile} xl={6}>
+              <OsChart />            
+            </Grid>
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <Grid item className={classes.tile} xs={6}>
+              <ViewChart />
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>
@@ -78,13 +92,8 @@ const DashBoard: React.FC = () => {
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>
-            <Grid item className={classes.tile} xl={6}>
-              <OsChart />            
-            </Grid>
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <Grid item className={classes.tile} xs={6}>
-              <ViewChart />
+            <Grid item className={classes.tile} xl={4} style={{padding: "0px"}}>
+              <SessionsPanel />
             </Grid>
           </ErrorBoundary>
         </Grid>

@@ -1,5 +1,12 @@
 import styled from "styled-components";
 
+export const Container = styled.div`
+@media(max-width: 1200px) {
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+`
+
 export const Table = styled.table`
     overflow-x: scroll;
     border: 1px solid black;
@@ -30,6 +37,7 @@ export const Td = styled.td`
 
 export const DatesTd = styled.td`
     width: 200px;
+    max-width: 200px;
     height: 30px;
     font-weight: bold; 
     border: 1px solid black;
