@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { weeklyRetentionObject } from "../models/event";
-import { Td, Th, DatesTd, Table, Container } from "../styledComponents/Retention"; 
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { weeklyRetentionObject } from '../models/event';
+import {
+  Td, Th, DatesTd, Table, Container,
+} from '../styledComponents/Retention';
 
-const OneHour: number = 1000 * 60 * 60; 
-const OneDay: number = OneHour * 24
-const OneWeek: number = OneDay*7
+const OneHour: number = 1000 * 60 * 60;
+const OneDay: number = OneHour * 24;
+const OneWeek: number = OneDay * 7;
 
 // 0:
 // end: "Oct 06 2020"
@@ -50,66 +52,69 @@ const OneWeek: number = OneDay*7
 // weeklyRetention: [100]
 
 const getDefalutDayZero = () => {
-  const today = new Date (new Date().toDateString()).getTime()+6*OneHour
-  const dayZeroInMili = today-8*OneWeek
+  const today = new Date(new Date().toDateString()).getTime() + 6 * OneHour;
+  const dayZeroInMili = today - 8 * OneWeek;
 
   return dayZeroInMili;
-}
-
+};
 
 const RetentionCohort: React.FC = () => {
-  
-  const [cohortData, setCohortData] = useState<weeklyRetentionObject[]>()
-  const [dayZero, setDayZero] = useState<number>(getDefalutDayZero())
-
+  const [cohortData, setCohortData] = useState<weeklyRetentionObject[]>();
+  const [dayZero] = useState<number>(getDefalutDayZero());
 
   useEffect(() => {
     const fetch = async () => {
       const { data } = await axios.get(`http://localhost:3001/events/retention?dayZero=${dayZero}`);
 
-      console.log(data)
+      console.log(data);
       setCohortData(data);
-    }
-    fetch()
-  }, [])
+    };
+    fetch();
+  }, []);
 
   return (
     <>
-    <Container>
-      <Table>
-        <tr>
-          <Th>Time frame</Th>
-          {
-            cohortData &&
-            cohortData.map((week:weeklyRetentionObject , index:number) => <Th>Week {index}</Th>)
-          }
-        </tr>
-        { cohortData && 
-          cohortData.map((week: weeklyRetentionObject) => {
-            return (
-              <tr>
-                <DatesTd>
-                  <div>
-                    {week.start} - {week.end}
-                  </div>
-                  <div style={{fontSize: "12px", fontWeight: "normal"}}>
-                    {week.newUsers} New Users
-                  </div>
-                </DatesTd>
-                {
-                  week.weeklyRetention.map((retention: number) => {
-                    return (
-                      <Td theme={{percents: retention}}>
-                        {retention}%
-                      </Td>
-                    );
-                  })
-                }
-              </tr>
-            );
-          } )
-        }
-      </Table>
+      <Container>
+        <Table>
+          <tr>
+            <Th>Time frame</Th>
+            {
+              cohortData
+            && cohortData.map((week:weeklyRetentionObject, index:number) => (
+              <Th>
+                Week
+                {index}
+              </Th>
+            ))
+            }
+          </tr>
+          { cohortData
+          && cohortData.map((week: weeklyRetentionObject) => (
+            <tr>
+              <DatesTd>
+                <div>
+                  {week.start}
+                  {' '}
+                  -
+                  {week.end}
+                </div>
+                <div style={{ fontSize: '12px', fontWeight: 'normal' }}>
+                  {week.newUsers}
+                  {' '}
+                  New Users
+                </div>
+              </DatesTd>
+              {
+                week.weeklyRetention.map((retention: number) => (
+                  <Td theme={{ percents: retention }}>
+                    {retention}
+                    %
+                  </Td>
+                ))
+              }
+            </tr>
+          ))}
+        </Table>
       </Container>
     </>
   );

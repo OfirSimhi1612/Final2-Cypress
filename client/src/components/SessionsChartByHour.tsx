@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   LineChart,
   Line,
@@ -8,32 +8,32 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-} from "recharts";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
+} from 'recharts';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    display: "flex",
-    justifyContent: "space-between",
-    paddingLeft: "10px",
-    marginBottom: "5px",
-    flexWrap: "wrap",
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingLeft: '10px',
+    marginBottom: '5px',
+    flexWrap: 'wrap',
   },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    marginTop: "10px",
-    width: "40%",
+    marginTop: '10px',
+    width: '40%',
   },
   chart: {
-    maxHeight: "100%",
-    height: "300px",
-    paddingBottom: "10px",
+    maxHeight: '100%',
+    height: '300px',
+    paddingBottom: '10px',
   },
   head: {
-    [theme.breakpoints.down("md")]: {
-      display: "none",
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
     },
   },
 }));
@@ -54,10 +54,10 @@ const SessionsByHourChart: React.FC = () => {
   useEffect(() => {
     async function fetch() {
       const { data: today } = await axios.get(
-        `http://localhost:3001/events/by-hours/${mainGraph}`
+        `http://localhost:3001/events/by-hours/${mainGraph}`,
       );
       const { data: yesterday } = await axios.get(
-        `http://localhost:3001/events/by-hours/${secondaryGraph}`
+        `http://localhost:3001/events/by-hours/${secondaryGraph}`,
       );
 
       console.log(yesterday);
@@ -135,8 +135,11 @@ const SessionsByHourChart: React.FC = () => {
             <Line type="monotone" dataKey="count" stroke="#8884d8" name="Main" />
             <Line type="monotone" dataKey="offset" stroke="#8c0819" name="Secondary" />
             <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-            <XAxis dataKey="hour" label={{value: "Date", offset:-10, position: "insideBottom"}}/>
-            <YAxis label={{ value: 'Unique Sessoins', angle: -90, position: 'insideStart', dx: -20}}/>
+            <XAxis dataKey="hour" label={{ value: 'Date', offset: -10, position: 'insideBottom' }} />
+            <YAxis label={{
+              value: 'Unique Sessoins', angle: -90, position: 'insideStart', dx: -20,
+            }}
+            />
             <Tooltip />
           </LineChart>
         </ResponsiveContainer>
