@@ -78,14 +78,15 @@ const Map: React.FC = () => {
   const focusOnEvent = React.useCallback(async ({ lat, lng }: Cordinates) => {
     const marker = markers.find((marker) => marker?.getPosition()?.toString() === `(${lat}, ${lng})`);
     const i = markers.indexOf(marker);
-    const location = await geocoder(lat, lng);
     const content = infos[i]!.getContent()
-    if(typeof content !== 'string'){
+    if(typeof content !== 'string' && content.childNodes.length === 2){
+      const location = await geocoder(lat, lng);
       const locationDiv = document.createElement("div");    
-      locationDiv.textContent = location;         
+      locationDiv.textContent = location;
+      locationDiv.id = 'locationDiv'         
       content.appendChild(locationDiv)
       infos[i]!.setContent(content);
-    } 
+    }     
     console.log(content)
     infos[i]!.open(map, marker);
     setMapCenter({
@@ -162,11 +163,12 @@ const Map: React.FC = () => {
   const markerClick = async (e:google.maps.MouseEvent) => {
     const marker:google.maps.Marker|undefined = markers.find((marker) => marker?.getPosition() === e.latLng);
     const i = markers.indexOf(marker);
-    const location = await geocoder(e.latLng.lat(), e.latLng.lng());
     const content = infos[i]!.getContent()
-    if(typeof content !== 'string'){
+    if(typeof content !== 'string' && content.childNodes.length === 2){
+      const location = await geocoder(e.latLng.lat(), e.latLng.lng());
       const locationDiv = document.createElement("div");    
-      locationDiv.textContent = location;         
+      locationDiv.textContent = location;
+      locationDiv.id = 'locationDiv'         
       content.appendChild(locationDiv)
       infos[i]!.setContent(content);
     }     
