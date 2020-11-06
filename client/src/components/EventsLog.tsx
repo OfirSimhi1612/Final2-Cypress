@@ -176,10 +176,10 @@ const EventLog: React.FC<LogProps> = ({events,
   focusOnEvent  
 }) => {
   
-
   const classes = useStyle();
 
   function getAllTypes(): string[] {
+    console.log(events)
     const types: string[] = events.map((event: Event) => event.name);
 
     return uniq(types);

@@ -7,6 +7,8 @@ import { Event } from '../models/event';
 import { LocationsDataDiv } from '../styledComponents/DashBoard';
 import EventsLog from './EventsLog';
 import geocoder from '../utils/geocoder';
+import { analyticsMachine } from '../machines/analyticsMachine';
+import { useMachine } from "@xstate/react";
 
 const containerStyle = {
   width: '100%',
@@ -22,7 +24,8 @@ interface Filters {
   sorting: string;
   type: string,
   browser: string,
-  search: string
+  search: string,
+  state: string;
 }
 
 export const LocationString: React.FC<Cordinates> = ({ lat, lng }: Cordinates) => {
@@ -59,21 +62,31 @@ const Map: React.FC = () => {
   const [map, setMap] = useState<google.maps.Map|undefined>(undefined);
   const [markers, setMarkers] = useState<(google.maps.Marker|undefined)[]>([]);
   const [infos, setInfos] = useState<(google.maps.InfoWindow|undefined)[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
   const [offset, setOffset] = useState<number>(10);
-  const [hasMore, setHasMore] = useState<boolean>(true);
   const [filters, setFilters] = useState({
     sorting: 'none',
     type: 'all',
     browser: 'all',
     search: '',
+    state: 'x'
   });
+
+  const [current, send, analyticsService] = useMachine(analyticsMachine);
+  const { pageData, results } = current.context;
+  
 
   const focusOnEvent = React.useCallback(async ({ lat, lng }: Cordinates) => {
     const marker = markers.find((marker) => marker?.getPosition()?.toString() === `(${lat}, ${lng})`);
     const i = markers.indexOf(marker);
     const location = await geocoder(lat, lng);
-    infos[i]!.setContent(`<span>${location}</span>`);
+    const content = infos[i]!.getContent()
+    if(typeof content !== 'string'){
+      const locationDiv = document.createElement("div");    
+      locationDiv.textContent = location;         
+      content.appendChild(locationDiv)
+      infos[i]!.setContent(content);
+    } 
+    console.log(content)
     infos[i]!.open(map, marker);
     setMapCenter({
       lat,
@@ -83,32 +96,20 @@ const Map: React.FC = () => {
   }, []);
 
   const fetch = React.useCallback(async (filters: Filters, offset: number) => {
-    try {
-      const { data } = await axios.get('http://localhost:3001/events/all-filtered', {
-        params: {
-          ...filters,
-          offset,
-        },
-      });
-      setHasMore(data.more);
-      setEvents(data.events);
-      return;
-    } catch (error) {
-      console.log(error);
-    }
+    send('FETCH', { 
+      params: 'all-filtered', 
+      query: {
+        ...filters,
+        offset,
+      }
+    })
   }, []);
 
+  
+
   useEffect(() => {
-    fetch(
-      {
-        sorting: 'none',
-        type: 'all',
-        browser: 'all',
-        search: '',
-      },
-      5,
-    );
-  }, [fetch]);
+    fetch(filters, 5)
+  }, []);
 
   function handleChange(
     key: string,
@@ -125,7 +126,8 @@ const Map: React.FC = () => {
         [key]: value.target.value,
       },
       5,
-    );
+    )
+    
   }
 
   const markerLoad = (marker:google.maps.Marker) => {
@@ -161,7 +163,13 @@ const Map: React.FC = () => {
     const marker:google.maps.Marker|undefined = markers.find((marker) => marker?.getPosition() === e.latLng);
     const i = markers.indexOf(marker);
     const location = await geocoder(e.latLng.lat(), e.latLng.lng());
-    infos[i]!.setContent(`<span>${location}</span>`);
+    const content = infos[i]!.getContent()
+    if(typeof content !== 'string'){
+      const locationDiv = document.createElement("div");    
+      locationDiv.textContent = location;         
+      content.appendChild(locationDiv)
+      infos[i]!.setContent(content);
+    }     
     infos[i]!.open(map, marker);
   };
 
@@ -193,14 +201,14 @@ const Map: React.FC = () => {
           }}
           onUnmount={onUnmount}
         >
-          {events
+          {results
           && (
             <MarkerClusterer
               options={clusterOptions}
             >
               {(clusterer) =>
               // @ts-ignore
-                events?.map((event, index) => {
+                results[0]?.map((event, index) => {
                   const { geolocation, name, date } = event;
                   return (
                     <Marker
@@ -215,7 +223,10 @@ const Map: React.FC = () => {
                       <InfoWindow
                         onLoad={infoLoad}
                       >
-                        <div />
+                        <>
+                          <div>{name}</div>
+                          <div>{new Date(date).toDateString()}</div>
+                        </>
                       </InfoWindow>
                     </Marker>
                   );
@@ -223,11 +234,13 @@ const Map: React.FC = () => {
             </MarkerClusterer>
           )}
           <>
+          
+          {results &&
             <LocationsDataDiv>
               <EventsLog
-                events={events}
+                events={results[0]}
                 offset={offset}
-                hasMore={hasMore}
+                hasMore={results[1]}
                 handleChange={handleChange}
                 setOffset={setOffset}
                 filters={filters}
@@ -235,6 +248,7 @@ const Map: React.FC = () => {
                 focusOnEvent={focusOnEvent}
               />
             </LocationsDataDiv>
+          }
           </>
         </GoogleMap>
       </LoadScript>

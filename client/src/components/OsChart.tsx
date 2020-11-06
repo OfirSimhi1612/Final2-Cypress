@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   PieChart, Pie, Tooltip, Cell, ResponsiveContainer,
 } from 'recharts';
 import { Event, os } from '../models/event';
+import { analyticsMachine } from '../machines/analyticsMachine';
+import { useMachine } from "@xstate/react";
 
 interface OsCount {
   name: os;
@@ -44,30 +45,31 @@ const renderCustomizedLabel = ({
 
 const OsChart: React.FC = () => {
   const [osCount, setOSCount] = useState<OsCount[]>([]);
+  const [current, send] = useMachine(analyticsMachine);
+  const { results } = current.context;
+
 
   useEffect(() => {
-    async function fetch() {
-      try {
-        const { data } = await axios.get('http://localhost:3001/events/chart/os/all');
-        const osData = data.reduce((count: OsCount[], event: Event) => {
-          count[count.findIndex((e) => e.name === event.os)].count += 1;
-          return count;
-        }, [
-          { name: 'windows', count: 0 },
-          { name: 'mac', count: 0 },
-          { name: 'linux', count: 0 },
-          { name: 'ios', count: 0 },
-          { name: 'android', count: 0 },
-          { name: 'other', count: 0 },
-        ]);
-        setOSCount(osData);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    fetch();
+    send('FETCH', {params: 'chart/os/all'})
   }, []);
+
+  useEffect(() => {
+    if(results){
+      const osData = results.reduce((count: OsCount[], event: Event) => {
+        count[count.findIndex((e) => e.name === event.os)].count += 1;
+        return count;
+      }, [
+        { name: 'windows', count: 0 },
+        { name: 'mac', count: 0 },
+        { name: 'linux', count: 0 },
+        { name: 'ios', count: 0 },
+        { name: 'android', count: 0 },
+        { name: 'other', count: 0 },
+      ]);
+  setOSCount(osData);
+    }
+    
+  }, [results])
 
   return (
     <>

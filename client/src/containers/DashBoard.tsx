@@ -79,7 +79,7 @@ const DashBoard: React.FC = () => {
           </ErrorBoundary>
           <ErrorBoundary>
             <Grid item className={classes.OsTile} xl={6}>
-              <OsChart />
+              <OsChart/>
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>

@@ -4,6 +4,8 @@ import {
 } from 'recharts';
 import axios from 'axios';
 import { Event, eventName } from '../models/event';
+import { analyticsMachine } from '../machines/analyticsMachine';
+import { useMachine } from "@xstate/react";
 
   interface ViewsCount {
     name: eventName;
@@ -15,13 +17,16 @@ const COLORS = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#9e2a2b'
 
 const ViewsChart: React.FC = () => {
   const [viewsCount, setViewsCount] = useState<ViewsCount[]>([]);
+  const [current, send, analyticsService] = useMachine(analyticsMachine);
+  const { pageData, results } = current.context;
 
   useEffect(() => {
-    async function fetch() {
-      try {
-        const { data } = await axios.get('http://localhost:3001/events/all');
-        const views = data.reduce((count: ViewsCount[], event: Event) => {
-          console.log(event.name);
+    send('FETCH', { params: 'all'})
+  }, [])
+
+  useEffect(() => {
+      if(results) {
+        const views = results.reduce((count: ViewsCount[], event: Event) => {
           count[count.findIndex((e) => e.url === event.name)].count += 1;
           return count;
         }, [
@@ -31,13 +36,8 @@ const ViewsChart: React.FC = () => {
           { name: 'Home Page', count: 0, url: '/' },
         ]);
         setViewsCount(views);
-      } catch (error) {
-        console.log(error);
       }
-    }
-
-    fetch();
-  }, []);
+  }, [results]);
 
   return (
     <>

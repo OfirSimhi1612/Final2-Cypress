@@ -11,6 +11,8 @@ import {
 } from 'recharts';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import { analyticsMachine } from '../machines/analyticsMachine';
+import { useMachine } from "@xstate/react";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -48,30 +50,33 @@ const SessionsByHourChart: React.FC = () => {
   const [sessionsCount, setSessionsCount] = useState<HourSessions[]>([]);
   const [mainGraph, setMainGraph] = useState<number>(getDaysOffset(getCurrentDate()));
   const [secondaryGraph, setSecondaryGraph] = useState<number>(getDaysOffset(getYesterdayDate()));
+  const [mainCurrent, sendMain] = useMachine(analyticsMachine);
+  const { results: mainResults } = mainCurrent.context;
+  const [secondaryCurrent, sendsecondary] = useMachine(analyticsMachine);
+  const { results: secondaryResults } = secondaryCurrent.context;
 
   const classes = useStyles();
 
   useEffect(() => {
-    async function fetch() {
-      const { data: today } = await axios.get(
-        `http://localhost:3001/events/by-hours/${mainGraph}`,
-      );
-      const { data: yesterday } = await axios.get(
-        `http://localhost:3001/events/by-hours/${secondaryGraph}`,
-      );
+    sendMain('FETCH', { params: `by-hours/${mainGraph}` })
+  }, [mainGraph]);
 
-      console.log(yesterday);
-      console.log(today);
-      const combined: HourSessions[] = today.map((day: HourSessions, index: number) => ({
-        offset: yesterday[index].count,
+  useEffect(() => {
+    sendsecondary('FETCH', { params: `by-hours/${secondaryGraph}` })
+  }, [secondaryGraph]);
+
+
+  useEffect(() => {
+    if(mainResults!.length > 0 && secondaryResults!.length > 0){
+      const combined: HourSessions[] = mainResults!.map((day: HourSessions, index: number) => ({
+        offset: secondaryResults![index].count,
         count: day.count,
         hour: day.hour,
       }));
-      setSessionsCount(combined);
+      setSessionsCount(combined)
     }
-
-    fetch();
-  }, [mainGraph, secondaryGraph]);
+  }, [mainResults, secondaryResults])
+    
 
   function getDaysOffset(date: string): number {
     const dayInMili = 1000 * 60 * 60 * 24;
@@ -130,6 +135,7 @@ const SessionsByHourChart: React.FC = () => {
             />
           </form>
         </div>
+        {(mainResults && secondaryResults) &&
         <ResponsiveContainer width="90%" height="80%">
           <LineChart data={sessionsCount} margin={{ top: 5, bottom: 15 }}>
             <Line type="monotone" dataKey="count" stroke="#8884d8" name="Main" />
@@ -143,6 +149,7 @@ const SessionsByHourChart: React.FC = () => {
             <Tooltip />
           </LineChart>
         </ResponsiveContainer>
+        }
       </div>
     </>
   );
