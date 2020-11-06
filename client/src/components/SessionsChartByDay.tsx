@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   LineChart,
   Line,
@@ -11,6 +10,8 @@ import {
 } from 'recharts';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import { analyticsMachine } from '../machines/analyticsMachine';
+import { useMachine } from "@xstate/react";
 
 export interface DaySessions {
   date: string;
@@ -45,20 +46,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SessionsByDayChart: React.FC = () => {
-  const [sessionsCount, setSessionsCount] = useState<DaySessions[]>([]);
   const [mainGraph, setMainGraph] = useState<number>(0);
+  const [current, send] = useMachine(analyticsMachine);
+  const { results } = current.context;
 
   const classes = useStyles();
 
   useEffect(() => {
-    async function fetch() {
-      const { data: thisWeek } = await axios.get(
-        `http://localhost:3001/events/by-days/${mainGraph}`,
-      );
-      setSessionsCount(thisWeek);
-    }
-
-    fetch();
+    send('FETCH', { params: `by-days/${mainGraph}` })
   }, [mainGraph]);
 
   function getDaysOffset(date: string): number {
@@ -99,7 +94,7 @@ const SessionsByDayChart: React.FC = () => {
           </form>
         </div>
         <ResponsiveContainer width="90%" height="80%">
-          <LineChart data={sessionsCount} margin={{ top: 5, bottom: 15 }}>
+          <LineChart data={results} margin={{ top: 5, bottom: 15 }}>
             <Line type="monotone" dataKey="count" stroke="#8884d8" name="This Week" />
             <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
             <XAxis dataKey="date" label={{ value: 'Date', offset: -10, position: 'insideBottom' }} />

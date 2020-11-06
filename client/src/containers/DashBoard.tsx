@@ -51,12 +51,13 @@ const useStyles = makeStyles((theme) => ({
   },
   GeoTile: {
     display: 'flex',
-    width: '95%',
+    width: '98%',
     height: '78vh',
     minHeight: '250px',
-    // boxShadow: "0px 0px 9px 1px #5C5C5C",
     borderRadius: '1%',
-
+    marginTop: '-50px',
+    marginLeft: '-30px',
+    marginRight: '-30px',
   },
 }));
 
@@ -78,7 +79,7 @@ const DashBoard: React.FC = () => {
           </ErrorBoundary>
           <ErrorBoundary>
             <Grid item className={classes.OsTile} xl={6}>
-              <OsChart />
+              <OsChart/>
             </Grid>
           </ErrorBoundary>
           <ErrorBoundary>
