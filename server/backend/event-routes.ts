@@ -80,7 +80,12 @@ router.get('/all-filtered', (req: Request, res: Response) => {
 
   if (filters.search && filters.search !== '') {
     const reg: RegExp = new RegExp(filters.search, 'i');
-    filtered = filtered.filter((event) => Object.keys(event).reduce((test: boolean, key) => test || reg.test((event[key]).toString()), false));
+    filtered = filtered.filter((event) => Object.keys(event).reduce((test: boolean, key) => {
+      if (key === 'date') {
+        return test;
+      }
+      return test || reg.test((event[key]).toString());
+    }, false));
   }
 
   if (filters.type && filters.type !== 'all') {

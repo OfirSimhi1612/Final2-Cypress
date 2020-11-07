@@ -154,7 +154,6 @@ interface Filters {
     search: string
   }
 
-
 export interface LogProps {
   events: Event[];
   hasMore: boolean;
