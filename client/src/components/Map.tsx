@@ -9,6 +9,7 @@ import EventsLog from './EventsLog';
 import geocoder from '../utils/geocoder';
 import { analyticsMachine } from '../machines/analyticsMachine';
 import { useMachine } from "@xstate/react";
+import { number } from 'yup';
 
 const containerStyle = {
   width: '100%',
@@ -60,8 +61,8 @@ const Map: React.FC = () => {
   });
   const [mapZoom, setmapZoom] = useState(2);
   const [map, setMap] = useState<google.maps.Map|undefined>(undefined);
-  const [markers, setMarkers] = useState<(google.maps.Marker|undefined)[]>([]);
-  const [infos, setInfos] = useState<(google.maps.InfoWindow|undefined)[]>([]);
+  const [markers] = useState<(google.maps.Marker|undefined)[]>([]);
+  const [infos] = useState<(google.maps.InfoWindow|undefined)[]>([]);
   const [offset, setOffset] = useState<number>(10);
   const [filters, setFilters] = useState({
     sorting: 'none',
@@ -70,24 +71,25 @@ const Map: React.FC = () => {
     search: '',
     state: 'x'
   });
-
-  const [current, send, analyticsService] = useMachine(analyticsMachine);
-  const { pageData, results } = current.context;
+  const [current, send] = useMachine(analyticsMachine);
+  const { results } = current.context;
   
-
-  const focusOnEvent = React.useCallback(async ({ lat, lng }: Cordinates) => {
-    const marker = markers.find((marker) => marker?.getPosition()?.toString() === `(${lat}, ${lng})`);
-    const i = markers.indexOf(marker);
-    const content = infos[i]!.getContent()
+  const addLocationToInfo = React.useCallback(async (index: number, {lat, lng}: Cordinates) => {
+    const content = infos[index]!.getContent()
     if(typeof content !== 'string' && content.childNodes.length === 2){
       const location = await geocoder(lat, lng);
       const locationDiv = document.createElement("div");    
       locationDiv.textContent = location;
       locationDiv.id = 'locationDiv'         
       content.appendChild(locationDiv)
-      infos[i]!.setContent(content);
+      infos[index]!.setContent(content);
     }     
-    console.log(content)
+  }, [])
+
+  const focusOnEvent = React.useCallback(async ({ lat, lng }: Cordinates) => {
+    const marker = markers.find((marker) => marker?.getPosition()?.toString() === `(${lat}, ${lng})`);
+    const i = markers.indexOf(marker);
+    await addLocationToInfo(i, {lat, lng})
     infos[i]!.open(map, marker);
     setMapCenter({
       lat,
@@ -105,8 +107,6 @@ const Map: React.FC = () => {
       }
     })
   }, []);
-
-  
 
   useEffect(() => {
     fetch(filters, 5)
@@ -163,15 +163,7 @@ const Map: React.FC = () => {
   const markerClick = async (e:google.maps.MouseEvent) => {
     const marker:google.maps.Marker|undefined = markers.find((marker) => marker?.getPosition() === e.latLng);
     const i = markers.indexOf(marker);
-    const content = infos[i]!.getContent()
-    if(typeof content !== 'string' && content.childNodes.length === 2){
-      const location = await geocoder(e.latLng.lat(), e.latLng.lng());
-      const locationDiv = document.createElement("div");    
-      locationDiv.textContent = location;
-      locationDiv.id = 'locationDiv'         
-      content.appendChild(locationDiv)
-      infos[i]!.setContent(content);
-    }     
+    await addLocationToInfo(i, {lat: e.latLng.lat(), lng: e.latLng.lng()})
     infos[i]!.open(map, marker);
   };
 
@@ -179,12 +171,18 @@ const Map: React.FC = () => {
     imagePath:
       'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', // so you must have m1.png, m2.png, m3.png, m4.png, m5.png and m6.png in that folder
   };
+
+  const MAP_BOUNDS = {
+    north: 84,
+    south: -84,
+    west: -180,
+    east: 180,
+  };
+
   return (
     <>
-
       <LoadScript
         googleMapsApiKey="AIzaSyD3uRdDcPpdu9aJ5HzF27fHowG86nAQ3zo"
-
       >
         <GoogleMap
           mapContainerStyle={containerStyle}
@@ -195,11 +193,15 @@ const Map: React.FC = () => {
             streetViewControl: false,
             center: mapCenter,
             mapTypeControl: false,
-            fullscreenControl: false,
+            fullscreenControl: true,
             scaleControl: true,
             styles,
             minZoom: 2,
             maxZoom: 18,
+            restriction: {
+              latLngBounds: MAP_BOUNDS,
+              strictBounds: false
+            }
           }}
           onUnmount={onUnmount}
         >
@@ -207,6 +209,7 @@ const Map: React.FC = () => {
           && (
             <MarkerClusterer
               options={clusterOptions}
+              minimumClusterSize={4}
             >
               {(clusterer) =>
               // @ts-ignore
@@ -236,7 +239,6 @@ const Map: React.FC = () => {
             </MarkerClusterer>
           )}
           <>
-          
           {results &&
             <LocationsDataDiv>
               <EventsLog

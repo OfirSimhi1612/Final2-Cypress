@@ -262,7 +262,7 @@ const EventLog: React.FC<LogProps> = ({events,
             }}
             hasMore={hasMore}
             scrollableTarget={"eventsWraper"}
-            loader={<h4>Loading...</h4>}
+            loader={<h4 style={{textAlign: 'center'}}>Loading...</h4>}
             endMessage={
               <p style={{ textAlign: "center" }}>
                 <b>No more events to display!</b>
