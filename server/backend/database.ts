@@ -851,15 +851,14 @@ function generateWeekObject(bottomLimit: number): { [day: string]: Event[] } {
   const week: { [day: string]: [] } = {};
 
   for (let i = 0; i < 7; i += 1) {
-    const date = new Date(bottomLimit + OneDay * i);
-    const key = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    const key = fullDateString(bottomLimit + OneDay * i);
     week[key] = [];
   }
   return week;
 }
 
-function fullDateString(event: Event): string {
-  const date: Date = new Date(event.date);
+function fullDateString(dateInMili: number): string {
+  const date: Date = new Date(dateInMili);
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 }
 
@@ -874,7 +873,7 @@ export const getLastWeekEventsCount = (offset: number) => {
     .get(EVENT_TABLE)
     .filter((event: Event) => event.date > bottomLimit && event.date < topLimit)
     .sort((e1: Event, e2: Event) => e1.date - e2.date)
-    .groupBy((event:Event) => fullDateString(event))
+    .groupBy((event: Event) => fullDateString(event.date))
     .value();
 
   const weekDays = generateWeekObject(bottomLimit);
