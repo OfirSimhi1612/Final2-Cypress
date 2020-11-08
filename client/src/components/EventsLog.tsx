@@ -80,8 +80,13 @@ const useStyle = makeStyles((theme) => ({
   accordion: {
     border: "0.001px solid grey",
   },
+  accordionHead: {
+    display: 'flex',
+    gap: '5px',
+    width: '100%',
+    alignItems: 'center'
+  },
   formControl: {
-    // margin: theme.spacing(1),
     minWidth: 120,
   },
   configDiv: {
@@ -117,20 +122,16 @@ const EventComponent: React.FC<EventComponentProps> = ({ event, focus }) => {
             aria-controls="panel1a-content"
             id="panel1a-header"
           >
-            <Typography>
-              <AccordionHead>
-                <UserColor userId={event.distinct_user_id} />
-                <Typography className={classes.downUserName}>
-                  <EventDetail>{event.distinct_user_id}</EventDetail>
-                </Typography>
-                <EventDetail>{event.name}</EventDetail>
-                <EventDetail>
-                  <IconButton style={{height: '30px', width: '30px'}} color="default" onClick={() => focus(event.geolocation.location)}>
-                    <PinDropIcon />
-                  </IconButton>
-                </EventDetail>
-              </AccordionHead>
-            </Typography>
+            <AccordionHead className={classes.accordionHead}>
+              <UserColor userId={event.distinct_user_id} />
+              <Typography className={classes.downUserName}>
+                <EventDetail>{event.distinct_user_id}</EventDetail>
+              </Typography>
+              <EventDetail>{event.name}</EventDetail>
+              <IconButton style={{height: '30px', width: '30px', marginLeft: 'auto'}} color="default" onClick={() => focus(event.geolocation.location)}>
+                <PinDropIcon />
+              </IconButton>
+            </AccordionHead>
           </AccordionSummary>
           <AccordionDetails>
             <Typography>

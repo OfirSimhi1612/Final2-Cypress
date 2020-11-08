@@ -1,15 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  GoogleMap, LoadScript, Marker, InfoWindow, MarkerClusterer,
-} from '@react-google-maps/api';
-import axios from 'axios';
-import { Event } from '../models/event';
+import React, { useState, useEffect } from 'react';
+import { GoogleMap, LoadScript, Marker, InfoWindow, MarkerClusterer } from '@react-google-maps/api';
 import { LocationsDataDiv } from '../styledComponents/DashBoard';
 import EventsLog from './EventsLog';
 import geocoder from '../utils/geocoder';
 import { analyticsMachine } from '../machines/analyticsMachine';
 import { useMachine } from "@xstate/react";
-import { number } from 'yup';
 
 const containerStyle = {
   width: '100%',
@@ -93,7 +88,7 @@ const Map: React.FC = () => {
     infos[i]!.open(map, marker);
     setMapCenter({
       lat,
-      lng: lng - 20,
+      lng: lng - 20, // need to find another solution...
     });
     setmapZoom(5);
   }, []);
@@ -260,4 +255,4 @@ const Map: React.FC = () => {
   );
 };
 
-export default React.memo(Map);
+export default Map;
