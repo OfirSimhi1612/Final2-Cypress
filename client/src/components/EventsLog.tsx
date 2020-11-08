@@ -10,7 +10,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
-import { uniq } from "lodash/fp";
 import TextField from "@material-ui/core/TextField";
 import InfiniteScroll from "react-infinite-scroll-component";
 import IconButton from "@material-ui/core/IconButton";
