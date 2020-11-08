@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Event } from "../models/event";
 import { makeStyles } from "@material-ui/core/styles";
 import styled from "styled-components";
-import axios from "axios";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -15,8 +14,8 @@ import InputLabel from "@material-ui/core/InputLabel";
 import { uniq } from "lodash/fp";
 import TextField from "@material-ui/core/TextField";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Button from "@material-ui/core/Button";
-import { StraightenSharp } from "@material-ui/icons";
+import IconButton from "@material-ui/core/IconButton";
+import PinDropIcon from '@material-ui/icons/PinDrop';
 
 interface EventComponentProps {
   event: Event;
@@ -122,9 +121,14 @@ const EventComponent: React.FC<EventComponentProps> = ({ event, focus }) => {
               <AccordionHead>
                 <UserColor userId={event.distinct_user_id} />
                 <Typography className={classes.downUserName}>
-                  <EventDetail>User {event.distinct_user_id}</EventDetail>
+                  <EventDetail>{event.distinct_user_id}</EventDetail>
                 </Typography>
                 <EventDetail>{event.name}</EventDetail>
+                <EventDetail>
+                  <IconButton style={{height: '30px', width: '30px'}} color="default" onClick={() => focus(event.geolocation.location)}>
+                    <PinDropIcon />
+                  </IconButton>
+                </EventDetail>
               </AccordionHead>
             </Typography>
           </AccordionSummary>
@@ -134,11 +138,8 @@ const EventComponent: React.FC<EventComponentProps> = ({ event, focus }) => {
                 <EventDetail>{event.distinct_user_id}</EventDetail>
               </Typography>
               <EventDetail>Date: {new Date(event.date).toLocaleString()}</EventDetail>
-              <EventDetail>Browser: {event.browser}</EventDetail>
+              <EventDetail>Os(browser): {event.os}({event.browser})</EventDetail>
               <EventDetail>Session ID: {event.session_id}</EventDetail>
-              <Button variant="outlined" color="default" onClick={() => focus(event.geolocation.location)}>
-                Show
-              </Button>
             </Typography>
           </AccordionDetails>
         </Accordion>
@@ -165,6 +166,9 @@ export interface LogProps {
   focusOnEvent: Function;
 }
 
+const allBrowsers: string[] = ['windows', 'mac', 'linux', 'ios', 'android', 'other']
+const allTypes: string[] = ['login', 'signup', 'admin']
+
 const EventLog: React.FC<LogProps> = ({events,
   hasMore,
   offset,
@@ -176,19 +180,6 @@ const EventLog: React.FC<LogProps> = ({events,
 }) => {
   
   const classes = useStyle();
-
-  function getAllTypes(): string[] {
-    console.log(events)
-    const types: string[] = events.map((event: Event) => event.name);
-
-    return uniq(types);
-  }
-
-  function getAllBrowsers(): string[] {
-    const types: string[] = events.map((event: Event) => event.browser);
-
-    return uniq(types);
-  }
 
   return (
     <>
@@ -229,7 +220,7 @@ const EventLog: React.FC<LogProps> = ({events,
               <MenuItem value="all">
                 <em>All</em>
               </MenuItem>
-              {getAllTypes().map((type: string) => {
+              {allTypes.map((type: string) => {
                 return <MenuItem value={type}>{type}</MenuItem>;
               })}
             </Select>
@@ -246,7 +237,7 @@ const EventLog: React.FC<LogProps> = ({events,
               <MenuItem value="all">
                 <em>All</em>
               </MenuItem>
-              {getAllBrowsers().map((type: string) => {
+              {allBrowsers.map((type: string) => {
                 return <MenuItem value={type}>{type}</MenuItem>;
               })}
             </Select>
