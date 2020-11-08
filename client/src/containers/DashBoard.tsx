@@ -25,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
     width: '95%',
     height: '78vh',
     minHeight: '500px',
-    // boxShadow: '0px 0px 9px 1px #7a7a7a',
     borderRadius: '1%',
   },
   tile: {
@@ -37,7 +36,6 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '500px',
     padding: '0px',
     alignContent: 'center',
-    // boxShadow: '0px 0px 9px 1px #7a7a7a',
     borderRadius: '1%',
   },
   OsTile: {
@@ -46,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
     minHeight: '300px',
     padding: '0px',
     alignContent: 'center',
-    // boxShadow: '0px 0px 9px 1px #7a7a7a',
     borderRadius: '1%',
   },
   GeoTile: {
