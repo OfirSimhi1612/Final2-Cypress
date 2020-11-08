@@ -56,8 +56,8 @@ const Map: React.FC = () => {
   });
   const [mapZoom, setmapZoom] = useState(2);
   const [map, setMap] = useState<google.maps.Map|undefined>(undefined);
-  const [markers] = useState<(google.maps.Marker|undefined)[]>([]);
-  const [infos] = useState<(google.maps.InfoWindow|undefined)[]>([]);
+  const [markers, setMarkers] = useState<(google.maps.Marker|undefined)[]>([]);
+  const [infos, setInfos] = useState<(google.maps.InfoWindow|undefined)[]>([]);
   const [offset, setOffset] = useState<number>(10);
   const [filters, setFilters] = useState({
     sorting: 'none',
@@ -112,17 +112,12 @@ const Map: React.FC = () => {
     value: React.ChangeEvent<{ name?: string | undefined; value: unknown }>,
   ) {
     setOffset(10);
-    setFilters({
+    const newFilters: Filters = {
       ...filters,
       [key]: value.target.value,
-    });
-    fetch(
-      {
-        ...filters,
-        [key]: value.target.value,
-      },
-      5,
-    )
+    }
+    setFilters(newFilters);
+    fetch(newFilters, 5)
     
   }
 

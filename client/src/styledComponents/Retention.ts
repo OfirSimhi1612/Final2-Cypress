@@ -23,9 +23,9 @@ export const Td = styled.td`
         switch(true){
             case state === 100:
                 return `rgb(1, 73, 124, 0.7)`
-            case state < 100 && state > 70:
+            case state < 100 && state >= 70:
                 return `rgb(42, 111, 151, 0.7)`
-            case state < 70 && state > 40:
+            case state < 70 && state >= 40:
                 return `rgb(70, 143, 175, 0.7)`
             case state < 40 && state > 0:
                 return `rgb(137, 194, 217, 0.7)`

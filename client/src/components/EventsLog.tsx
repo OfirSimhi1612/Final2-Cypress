@@ -1,7 +1,6 @@
 import React from "react";
 import { Event } from "../models/event";
 import { makeStyles } from "@material-ui/core/styles";
-import styled from "styled-components";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -16,64 +15,11 @@ import TextField from "@material-ui/core/TextField";
 import InfiniteScroll from "react-infinite-scroll-component";
 import IconButton from "@material-ui/core/IconButton";
 import PinDropIcon from '@material-ui/icons/PinDrop';
+import { EventDetail, Wraper, LogTile, AccordionHead, EeventAccordion, UserColor } from "../styledComponents/EventsLog";
 
 interface EventComponentProps {
   event: Event;
   focus: Function;
-}
-
-interface UserColorProps {
-  userId: string;
-}
-
-const EventDetail = styled.div`
-  display: flex;
-`;
-
-const Wraper = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  width: 100%;
-`;
-
-const LogTile = styled.div`
-  display: flex;
-  gap: 30px;
-  padding: 5px;
-  height: 100%;
-`;
-
-const AccordionHead = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
-const EeventAccordion = styled.div`
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const UserColor = styled.div<UserColorProps>`
-  background-color: ${(props) => getUserColor(props.userId)};
-  border-radius: 100%;
-  width: 30px;
-  height: 30px;
-`;
-
-function getUserColor(userId: string): string {
-  let count: number = 0;
-  for(let i = 0; i < userId.length; i++){
-      count += userId.charCodeAt(i)
-  }
-
-  const red = (count * 1934 + 100) % 256;
-  const green = (count * 5188 + 200) % 256;
-  const blue = (count * 1312 + 100) % 256;
-
-  return `rgb(${red},${green},${blue},0.9)`;
 }
 
 const useStyle = makeStyles((theme) => ({
@@ -127,8 +73,8 @@ const EventComponent: React.FC<EventComponentProps> = ({ event, focus }) => {
               <Typography className={classes.downUserName}>
                 <EventDetail>{event.distinct_user_id}</EventDetail>
               </Typography>
-              <EventDetail>{event.name}</EventDetail>
-              <IconButton style={{height: '30px', width: '30px', marginLeft: 'auto'}} color="default" onClick={() => focus(event.geolocation.location)}>
+              <EventDetail style={{marginRight: '10px', marginLeft: 'auto'}}>{event.name}</EventDetail>
+              <IconButton style={{height: '30px', width: '30px'}} color="default" onClick={() => focus(event.geolocation.location)}>
                 <PinDropIcon />
               </IconButton>
             </AccordionHead>
